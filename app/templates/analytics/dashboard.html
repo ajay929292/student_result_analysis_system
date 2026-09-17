@@ -1,0 +1,780 @@
+{% extends "base.html" %}
+
+{% block title %}Statistical Analytics & Academic Intelligence{% endblock %}
+
+{% block extra_css %}
+<style>
+    .analytics-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 1.25rem;
+        margin-bottom: 2rem;
+    }
+
+    .kpi-card {
+        background: var(--bg-card);
+        border: 1px solid var(--border-color);
+        border-radius: var(--radius-lg);
+        padding: 1.5rem;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        position: relative;
+        overflow: hidden;
+        transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+    }
+
+    .kpi-card:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-md);
+    }
+
+    .kpi-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: var(--card-accent-color, var(--color-primary));
+    }
+
+    .kpi-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.75rem;
+    }
+
+    .kpi-title {
+        font-size: 0.825rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: var(--text-muted);
+    }
+
+    .kpi-icon {
+        width: 36px;
+        height: 36px;
+        border-radius: var(--radius-md);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--icon-bg, rgba(99, 102, 241, 0.12));
+        color: var(--icon-color, var(--color-primary));
+    }
+
+    .kpi-value {
+        font-size: 2.1rem;
+        font-weight: 800;
+        color: var(--text-main);
+        font-family: var(--font-sans);
+        line-height: 1.1;
+        margin-bottom: 0.5rem;
+    }
+
+    .kpi-sub {
+        font-size: 0.825rem;
+        color: var(--text-muted);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+    }
+
+    .chart-container-box {
+        background: var(--bg-card);
+        border: 1px solid var(--border-color);
+        border-radius: var(--radius-lg);
+        padding: 1.5rem;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .chart-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.25rem;
+        padding-bottom: 0.75rem;
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .chart-title {
+        font-size: 1.05rem;
+        font-weight: 700;
+        color: var(--text-main);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin: 0;
+    }
+
+    .rank-badge-1 {
+        background: linear-gradient(135deg, #f59e0b, #d97706);
+        color: #ffffff;
+        font-weight: 800;
+        padding: 3px 8px;
+        border-radius: var(--radius-full);
+        font-size: 0.75rem;
+        box-shadow: 0 2px 6px rgba(217, 119, 6, 0.35);
+    }
+
+    .rank-badge-2 {
+        background: linear-gradient(135deg, #94a3b8, #64748b);
+        color: #ffffff;
+        font-weight: 800;
+        padding: 3px 8px;
+        border-radius: var(--radius-full);
+        font-size: 0.75rem;
+    }
+
+    .rank-badge-3 {
+        background: linear-gradient(135deg, #d97706, #b45309);
+        color: #ffffff;
+        font-weight: 800;
+        padding: 3px 8px;
+        border-radius: var(--radius-full);
+        font-size: 0.75rem;
+    }
+
+    .rank-badge-other {
+        background: var(--bg-hover);
+        color: var(--text-muted);
+        font-weight: 700;
+        padding: 3px 8px;
+        border-radius: var(--radius-full);
+        font-size: 0.75rem;
+        border: 1px solid var(--border-color);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-container">
+    <!-- Page Header -->
+    <div class="page-header" style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
+        <div>
+            <h1 class="page-title" style="font-size: 1.75rem; font-weight: 800; display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.35rem;">
+                <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" style="color: var(--color-primary);">
+                    <line x1="18" y1="20" x2="18" y2="10"/>
+                    <line x1="12" y1="20" x2="12" y2="4"/>
+                    <line x1="6" y1="20" x2="6" y2="14"/>
+                </svg>
+                Statistical Analytics & Academic Intelligence
+            </h1>
+            <p class="page-subtitle" style="color: var(--text-muted); font-size: 0.95rem; margin: 0;">
+                Pandas-powered vectorized descriptive metrics, IGNOU 10-point grade frequency, cross-subject benchmarking, and academic early warning alerts.
+            </p>
+        </div>
+        <div style="display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap;">
+            <a href="{{ url_for('marks.entry') }}" class="btn btn-secondary" style="gap: 0.5rem;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 20h9"/>
+                    <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
+                </svg>
+                Marks Registry
+            </a>
+            <button type="button" class="btn btn-primary" onclick="window.print()" style="gap: 0.5rem; font-weight: 600;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="6 9 6 2 18 2 18 9"/>
+                    <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/>
+                    <rect x="6" y="14" width="12" height="8"/>
+                </svg>
+                Print Report
+            </button>
+        </div>
+    </div>
+
+    <!-- Cohort & Exam Cycle Filter Form -->
+    <div class="card" style="padding: 1.25rem 1.5rem; margin-bottom: 2rem;">
+        <form method="GET" action="{{ url_for('analytics.dashboard') }}" id="analyticsFilterForm" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)) auto; gap: 1rem; align-items: flex-end;">
+            
+            <div class="form-group" style="margin: 0;">
+                <label class="form-label" style="font-size: 0.85rem; font-weight: 600; color: var(--text-muted); margin-bottom: 0.35rem; display: block;">
+                    Target Academic Cohort / Class
+                </label>
+                <select name="class_id" id="classSelect" class="form-control" required style="background: var(--bg-hover);">
+                    {% for c in classes %}
+                    <option value="{{ c.class_id }}" {% if selected_class and selected_class.class_id == c.class_id %}selected{% endif %}>
+                        {{ c.display_name }} ({{ c.academic_year.year_label }})
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group" style="margin: 0;">
+                <label class="form-label" style="font-size: 0.85rem; font-weight: 600; color: var(--text-muted); margin-bottom: 0.35rem; display: block;">
+                    Examination Cycle Term
+                </label>
+                <select name="term_id" id="termSelect" class="form-control" required style="background: var(--bg-hover);">
+                    {% for t in terms %}
+                    <option value="{{ t.term_id }}" {% if selected_term and selected_term.term_id == t.term_id %}selected{% endif %}>
+                        {{ t.term_name }} {% if t.is_locked %}(Locked){% endif %}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div>
+                <button type="submit" class="btn btn-primary" id="applyFilterBtn" style="font-weight: 600; height: 42px; width: 100%; gap: 0.5rem;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>
+                    </svg>
+                    Analyze Cohort
+                </button>
+            </div>
+        </form>
+    </div>
+
+    {% if overview and overview.has_data %}
+    <!-- KPI Overview Cards -->
+    <div class="analytics-grid">
+        
+        <!-- KPI 1: Class Average -->
+        <div class="kpi-card" style="--card-accent-color: var(--color-primary);">
+            <div>
+                <div class="kpi-header">
+                    <span class="kpi-title">Cohort Mean Score</span>
+                    <div class="kpi-icon" style="--icon-bg: rgba(99, 102, 241, 0.12); --icon-color: var(--color-primary);">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="18" y1="20" x2="18" y2="10"/>
+                            <line x1="12" y1="20" x2="12" y2="4"/>
+                            <line x1="6" y1="20" x2="6" y2="14"/>
+                        </svg>
+                    </div>
+                </div>
+                <div class="kpi-value" id="kpiAverageScore">{{ overview.class_average }}%</div>
+            </div>
+            <div class="kpi-sub">
+                <span>Median: <strong>{{ overview.median_score }}%</strong></span>
+                <span>•</span>
+                <span>Std Dev: <strong>±{{ overview.standard_deviation }}%</strong></span>
+            </div>
+        </div>
+
+        <!-- KPI 2: Overall Pass Rate -->
+        <div class="kpi-card" style="--card-accent-color: var(--color-success);">
+            <div>
+                <div class="kpi-header">
+                    <span class="kpi-title">Overall Pass Rate</span>
+                    <div class="kpi-icon" style="--icon-bg: rgba(16, 185, 129, 0.12); --icon-color: var(--color-success);">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                            <polyline points="22 4 12 14.01 9 11.01"/>
+                        </svg>
+                    </div>
+                </div>
+                <div class="kpi-value" id="kpiPassRate" style="color: var(--color-success);">{{ overview.pass_percentage }}%</div>
+            </div>
+            <div class="kpi-sub">
+                <span class="badge badge-success">{{ overview.total_passed }} Passed</span>
+                <span class="badge badge-danger">{{ overview.total_failed }} Failed</span>
+                <span style="color: var(--text-muted); font-size: 0.75rem;">of {{ overview.total_appeared }} Appeared</span>
+            </div>
+        </div>
+
+        <!-- KPI 3: Academic Valedictorian -->
+        <div class="kpi-card" style="--card-accent-color: #f59e0b;">
+            <div>
+                <div class="kpi-header">
+                    <span class="kpi-title">Highest Score</span>
+                    <div class="kpi-icon" style="--icon-bg: rgba(245, 158, 11, 0.12); --icon-color: #f59e0b;">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="8" r="7"/>
+                            <polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/>
+                        </svg>
+                    </div>
+                </div>
+                <div class="kpi-value" id="kpiTopScore">{{ overview.highest_score }}%</div>
+            </div>
+            <div class="kpi-sub">
+                {% if overview.top_student %}
+                <span style="font-weight: 700; color: var(--text-main);" title="{{ overview.top_student.enrollment_no }}">
+                    🥇 {{ overview.top_student.student_name }}
+                </span>
+                <span class="badge badge-success">{{ overview.top_student.grade }}</span>
+                {% else %}
+                <span>—</span>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- KPI 4: Academic Alerts / At-Risk -->
+        <div class="kpi-card" style="--card-accent-color: var(--color-danger);">
+            <div>
+                <div class="kpi-header">
+                    <span class="kpi-title">Academic Alerts</span>
+                    <div class="kpi-icon" style="--icon-bg: rgba(239, 68, 68, 0.12); --icon-color: var(--color-danger);">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                            <line x1="12" y1="9" x2="12" y2="13"/>
+                            <line x1="12" y1="17" x2="12.01" y2="17"/>
+                        </svg>
+                    </div>
+                </div>
+                <div class="kpi-value" id="kpiAtRiskCount" style="color: var(--color-danger);">
+                    {{ at_risk|length if at_risk else 0 }}
+                </div>
+            </div>
+            <div class="kpi-sub">
+                {% if at_risk and at_risk|length > 0 %}
+                <span style="color: var(--color-danger); font-weight: 600;">Candidates requiring remediation</span>
+                {% else %}
+                <span style="color: var(--color-success); font-weight: 600;">Zero candidates at academic risk</span>
+                {% endif %}
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Charts Grid -->
+    <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem; margin-bottom: 2rem;">
+        
+        <!-- Chart 1: Grade Distribution Frequency -->
+        <div class="chart-container-box">
+            <div class="chart-header">
+                <h3 class="chart-title">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: var(--color-primary);">
+                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                        <line x1="3" y1="9" x2="21" y2="9"/>
+                        <line x1="9" y1="21" x2="9" y2="9"/>
+                    </svg>
+                    IGNOU 10-Point Grade Distribution Frequency
+                </h3>
+                <span style="font-size: 0.8rem; color: var(--text-muted);">
+                    {{ grade_dist.total_evaluations if grade_dist else 0 }} Total Evaluations
+                </span>
+            </div>
+            <div style="position: relative; height: 280px; width: 100%;">
+                <canvas id="gradeDistributionChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Chart 2: Outcome Ratio (Pass vs Fail vs Absent) -->
+        <div class="chart-container-box">
+            <div class="chart-header">
+                <h3 class="chart-title">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: var(--color-accent);">
+                        <circle cx="12" cy="12" r="10"/>
+                        <path d="M12 2a10 10 0 0 1 10 10"/>
+                    </svg>
+                    Evaluation Outcome Ratio
+                </h3>
+                <span style="font-size: 0.8rem; color: var(--text-muted);">
+                    {{ overview.total_enrolled }} Registered
+                </span>
+            </div>
+            <div style="position: relative; height: 280px; width: 100%;">
+                <canvas id="outcomeDoughnutChart"></canvas>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Chart 3: Cross-Subject Benchmarking -->
+    <div class="chart-container-box" style="margin-bottom: 2rem;">
+        <div class="chart-header">
+            <h3 class="chart-title">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: var(--color-secondary);">
+                    <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+                </svg>
+                Curriculum Cross-Subject Performance Benchmarks
+            </h3>
+            {% if subj_comp and subj_comp.most_challenging %}
+            <span class="badge badge-warning" style="font-size: 0.75rem;">
+                Challenging Subject: {{ subj_comp.most_challenging.subject_code }} ({{ subj_comp.most_challenging.pass_rate }}% Pass)
+            </span>
+            {% endif %}
+        </div>
+        <div style="position: relative; height: 260px; width: 100%;">
+            <canvas id="subjectComparisonChart"></canvas>
+        </div>
+    </div>
+
+    <!-- Two-Column Section: Top Performers & At-Risk Alert List -->
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 2rem;">
+        
+        <!-- Table 1: Top Academic Performers (Merit Board) -->
+        <div class="card" style="padding: 0; overflow: hidden;">
+            <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--border-color);">
+                <h3 style="font-size: 1.05rem; font-weight: 700; margin: 0; display: flex; align-items: center; gap: 0.5rem;">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: #f59e0b;">
+                        <circle cx="12" cy="8" r="7"/>
+                        <polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/>
+                    </svg>
+                    Academic Merit Board (Top Rankers)
+                </h3>
+                <span class="badge badge-neutral">Top {{ top_performers|length if top_performers else 0 }}</span>
+            </div>
+            
+            {% if top_performers and top_performers|length > 0 %}
+            <div class="table-responsive">
+                <table class="table" style="width: 100%; border-collapse: collapse;">
+                    <thead>
+                        <tr style="text-align: left; color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase; background: var(--bg-hover); border-bottom: 1px solid var(--border-color);">
+                            <th style="padding: 0.75rem 1rem; width: 60px; text-align: center;">Rank</th>
+                            <th style="padding: 0.75rem 1rem;">Candidate</th>
+                            <th style="padding: 0.75rem 1rem; text-align: center;">Score</th>
+                            <th style="padding: 0.75rem 1rem; text-align: center;">Percentage</th>
+                            <th style="padding: 0.75rem 1rem; text-align: right;">Grade</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for ranker in top_performers %}
+                        <tr style="border-bottom: 1px solid var(--border-color);">
+                            <td style="padding: 0.75rem 1rem; text-align: center;">
+                                {% if ranker.rank == 1 %}
+                                <span class="rank-badge-1">1st</span>
+                                {% elif ranker.rank == 2 %}
+                                <span class="rank-badge-2">2nd</span>
+                                {% elif ranker.rank == 3 %}
+                                <span class="rank-badge-3">3rd</span>
+                                {% else %}
+                                <span class="rank-badge-other">{{ ranker.rank }}th</span>
+                                {% endif %}
+                            </td>
+                            <td style="padding: 0.75rem 1rem;">
+                                <div style="font-weight: 600; color: var(--text-main);">{{ ranker.student_name }}</div>
+                                <div style="font-size: 0.75rem; font-family: var(--font-mono); color: var(--text-muted);">{{ ranker.enrollment_no }}</div>
+                            </td>
+                            <td style="padding: 0.75rem 1rem; text-align: center; font-family: var(--font-mono); font-weight: 700;">
+                                {{ ranker.total_obtained }} / {{ ranker.max_possible }}
+                            </td>
+                            <td style="padding: 0.75rem 1rem; text-align: center; font-family: var(--font-mono); font-weight: 800; color: var(--color-primary);">
+                                {{ ranker.percentage }}%
+                            </td>
+                            <td style="padding: 0.75rem 1rem; text-align: right;">
+                                <span class="badge badge-success">{{ ranker.grade }}</span>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div style="padding: 2.5rem; text-align: center; color: var(--text-muted); font-size: 0.9rem;">
+                No merit rankings available for this examination cycle.
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Table 2: Academic Early Warning (At-Risk Students) -->
+        <div class="card" style="padding: 0; overflow: hidden;">
+            <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--border-color);">
+                <h3 style="font-size: 1.05rem; font-weight: 700; margin: 0; display: flex; align-items: center; gap: 0.5rem;">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: var(--color-danger);">
+                        <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                        <line x1="12" y1="9" x2="12" y2="13"/>
+                        <line x1="12" y1="17" x2="12.01" y2="17"/>
+                    </svg>
+                    Academic Early Warning Registry
+                </h3>
+                <span class="badge badge-danger">{{ at_risk|length if at_risk else 0 }} Vulnerable</span>
+            </div>
+
+            {% if at_risk and at_risk|length > 0 %}
+            <div class="table-responsive">
+                <table class="table" style="width: 100%; border-collapse: collapse;">
+                    <thead>
+                        <tr style="text-align: left; color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase; background: var(--bg-hover); border-bottom: 1px solid var(--border-color);">
+                            <th style="padding: 0.75rem 1rem;">Candidate</th>
+                            <th style="padding: 0.75rem 0.5rem; text-align: center;">Risk Level</th>
+                            <th style="padding: 0.75rem 1rem;">Diagnosis & Remedial Plan</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for risk in at_risk %}
+                        <tr style="border-bottom: 1px solid var(--border-color);">
+                            <td style="padding: 0.75rem 1rem;">
+                                <div style="font-weight: 600; color: var(--text-main);">{{ risk.student_name }}</div>
+                                <div style="font-size: 0.75rem; font-family: var(--font-mono); color: var(--text-muted);">{{ risk.enrollment_no }}</div>
+                                <div style="font-size: 0.75rem; font-weight: 700; color: var(--color-danger); margin-top: 2px;">
+                                    Avg: {{ risk.average_percentage }}%
+                                </div>
+                            </td>
+                            <td style="padding: 0.75rem 0.5rem; text-align: center;">
+                                {% if risk.risk_level == 'HIGH' %}
+                                <span class="badge badge-danger">HIGH RISK</span>
+                                {% elif risk.risk_level == 'MEDIUM' %}
+                                <span class="badge badge-warning">MEDIUM</span>
+                                {% else %}
+                                <span class="badge badge-neutral">BORDERLINE</span>
+                                {% endif %}
+                            </td>
+                            <td style="padding: 0.75rem 1rem;">
+                                <div style="font-size: 0.8rem; color: var(--text-main); font-weight: 500; margin-bottom: 0.25rem;">
+                                    {{ risk.reasons | join(' • ') }}
+                                </div>
+                                <div style="font-size: 0.75rem; color: var(--color-primary); font-weight: 600; display: flex; align-items: center; gap: 4px;">
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <polyline points="9 18 15 12 9 6"/>
+                                    </svg>
+                                    {{ risk.recommendation }}
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div style="padding: 2.5rem; text-align: center; color: var(--color-success); font-size: 0.9rem;">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin: 0 auto 0.5rem; opacity: 0.8;">
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                    <polyline points="22 4 12 14.01 9 11.01"/>
+                </svg>
+                <div style="font-weight: 700;">Outstanding Academic Performance!</div>
+                <div style="color: var(--text-muted); font-size: 0.8rem; margin-top: 0.25rem;">No candidates currently qualify for early academic warning intervention.</div>
+            </div>
+            {% endif %}
+        </div>
+
+    </div>
+
+    {% else %}
+    <!-- Empty State Prompt -->
+    <div class="card" style="padding: 4rem 2rem; text-align: center; color: var(--text-muted);">
+        <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin: 0 auto 1.25rem; opacity: 0.35;">
+            <line x1="18" y1="20" x2="18" y2="10"/>
+            <line x1="12" y1="20" x2="12" y2="4"/>
+            <line x1="6" y1="20" x2="6" y2="14"/>
+        </svg>
+        <h2 style="font-size: 1.3rem; font-weight: 700; color: var(--text-main); margin-bottom: 0.5rem;">
+            No Analytical Score Records Found
+        </h2>
+        <p style="font-size: 0.95rem; max-width: 520px; margin: 0 auto 1.5rem;">
+            The selected academic cohort has no recorded student examination evaluations for this exam cycle term. Enter candidate marks or ingest an Excel spreadsheet to unlock real-time statistical analytics.
+        </p>
+        <div style="display: flex; gap: 0.75rem; justify-content: center;">
+            <a href="{{ url_for('marks.entry') }}" class="btn btn-primary" style="gap: 0.5rem;">
+                Record Evaluation Scores
+            </a>
+            <a href="{{ url_for('marks.bulk_upload') }}" class="btn btn-accent" style="gap: 0.5rem;">
+                Batch Excel Ingestion
+            </a>
+        </div>
+    </div>
+    {% endif %}
+
+</div>
+
+<!-- Embedded JSON Data for Safe Chart Rendering (Zero Jinja in JavaScript) -->
+<script type="application/json" id="analyticsChartData">
+{
+    "hasData": {{ 'true' if (overview and overview.has_data) else 'false' }},
+    "gradeDistribution": {
+        "labels": {{ (grade_dist.labels if grade_dist else []) | tojson }},
+        "counts": {{ (grade_dist.counts if grade_dist else []) | tojson }}
+    },
+    "subjectComparison": {
+        "labels": {{ (subj_comp.labels if subj_comp else []) | tojson }},
+        "averages": {{ (subj_comp.averages if subj_comp else []) | tojson }},
+        "passRates": {{ (subj_comp.pass_rates if subj_comp else []) | tojson }}
+    },
+    "outcomeRatio": {
+        "passed": {{ overview.total_passed if overview else 0 }},
+        "failed": {{ overview.total_failed if overview else 0 }},
+        "absent": {{ ((overview.total_enrolled - overview.total_appeared) if (overview and overview.total_enrolled >= overview.total_appeared) else 0) }}
+    }
+}
+</script>
+{% endblock %}
+
+{% block extra_js %}
+<!-- Chart.js 4.4.1 -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const dataElement = document.getElementById('analyticsChartData');
+    if (!dataElement) return;
+
+    let analyticsData;
+    try {
+        analyticsData = JSON.parse(dataElement.textContent);
+    } catch (e) {
+        console.error('Failed to parse analytics chart JSON payload:', e);
+        return;
+    }
+
+    if (!analyticsData || !analyticsData.hasData || typeof Chart === 'undefined') {
+        return;
+    }
+
+    // Determine current theme colors
+    const isDark = document.documentElement.getAttribute('data-theme') !== 'light';
+    const textColor = isDark ? '#94a3b8' : '#475569';
+    const gridColor = isDark ? 'rgba(255, 255, 255, 0.07)' : 'rgba(0, 0, 0, 0.06)';
+    const fontFamily = "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
+
+    // Chart 1: Grade Distribution Bar Chart
+    const gradeCanvas = document.getElementById('gradeDistributionChart');
+    if (gradeCanvas && analyticsData.gradeDistribution) {
+        const gradeColors = [
+            '#10b981', // O (Green)
+            '#06b6d4', // A+ (Cyan)
+            '#3b82f6', // A (Blue)
+            '#6366f1', // B+ (Indigo)
+            '#8b5cf6', // B (Purple)
+            '#f59e0b', // C (Amber)
+            '#ef4444'  // F (Red)
+        ];
+
+        new Chart(gradeCanvas, {
+            type: 'bar',
+            data: {
+                labels: analyticsData.gradeDistribution.labels,
+                datasets: [{
+                    label: 'Candidates Count',
+                    data: analyticsData.gradeDistribution.counts,
+                    backgroundColor: gradeColors,
+                    borderRadius: 6,
+                    borderSkipped: false
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        titleFont: { family: fontFamily, weight: 'bold' },
+                        bodyFont: { family: fontFamily },
+                        padding: 10,
+                        cornerRadius: 8
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: { display: false },
+                        ticks: { color: textColor, font: { family: fontFamily, weight: '600' } }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        grid: { color: gridColor },
+                        ticks: {
+                            color: textColor,
+                            stepSize: 1,
+                            font: { family: fontFamily }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    // Chart 2: Outcome Ratio Doughnut Chart
+    const outcomeCanvas = document.getElementById('outcomeDoughnutChart');
+    if (outcomeCanvas && analyticsData.outcomeRatio) {
+        const passedCount = analyticsData.outcomeRatio.passed || 0;
+        const failedCount = analyticsData.outcomeRatio.failed || 0;
+        const absentCount = analyticsData.outcomeRatio.absent || 0;
+
+        new Chart(outcomeCanvas, {
+            type: 'doughnut',
+            data: {
+                labels: ['Passed', 'Failed', 'Absent'],
+                datasets: [{
+                    data: [passedCount, failedCount, absentCount],
+                    backgroundColor: ['#10b981', '#ef4444', '#94a3b8'],
+                    borderWidth: 2,
+                    borderColor: isDark ? '#1e293b' : '#ffffff',
+                    hoverOffset: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '70%',
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            color: textColor,
+                            font: { family: fontFamily, size: 12, weight: '500' },
+                            padding: 16,
+                            usePointStyle: true,
+                            pointStyle: 'circle'
+                        }
+                    },
+                    tooltip: {
+                        padding: 10,
+                        cornerRadius: 8,
+                        titleFont: { family: fontFamily },
+                        bodyFont: { family: fontFamily }
+                    }
+                }
+            }
+        });
+    }
+
+    // Chart 3: Cross-Subject Benchmarking
+    const subjCanvas = document.getElementById('subjectComparisonChart');
+    if (subjCanvas && analyticsData.subjectComparison) {
+        new Chart(subjCanvas, {
+            type: 'bar',
+            data: {
+                labels: analyticsData.subjectComparison.labels,
+                datasets: [
+                    {
+                        label: 'Average Score (%)',
+                        data: analyticsData.subjectComparison.averages,
+                        backgroundColor: 'rgba(99, 102, 241, 0.85)',
+                        borderRadius: 6
+                    },
+                    {
+                        label: 'Pass Rate (%)',
+                        data: analyticsData.subjectComparison.passRates,
+                        backgroundColor: 'rgba(16, 185, 129, 0.85)',
+                        borderRadius: 6
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                        labels: {
+                            color: textColor,
+                            font: { family: fontFamily, size: 12, weight: '600' },
+                            usePointStyle: true,
+                            pointStyle: 'circle',
+                            padding: 14
+                        }
+                    },
+                    tooltip: {
+                        padding: 10,
+                        cornerRadius: 8,
+                        callbacks: {
+                            label: function(context) {
+                                return ` ${context.dataset.label}: ${context.parsed.y}%`;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: { display: false },
+                        ticks: { color: textColor, font: { family: fontFamily, weight: '600' } }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        max: 100,
+                        grid: { color: gridColor },
+                        ticks: {
+                            color: textColor,
+                            callback: function(val) { return val + '%'; },
+                            font: { family: fontFamily }
+                        }
+                    }
+                }
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

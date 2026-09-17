@@ -247,50 +247,77 @@ def seed_database():
         db.session.commit()
 
         # ----------------------------------------------------------------------
-        # 6. Seed Sample Marks for Testing
+        # 6. Seed Sample Marks for Testing Across Multiple Subjects
         # ----------------------------------------------------------------------
-        print("\n[6/6] Seeding Sample Marks Records...")
-        bcs011_map = ClassSubject.query.filter_by(
-            class_id=bca1.class_id,
-            subject_id=seeded_subjects['BCS-011'].subject_id
-        ).first()
-
+        print("\n[6/6] Seeding Sample Marks Records Across Subjects...")
         admin_user = seeded_users['admin']
 
-        sample_scores = [
-            {'idx': 0, 'int': 25.0, 'ext': 62.0, 'grade': 'O',  'gp': 10.0, 'absent': False},
-            {'idx': 1, 'int': 22.0, 'ext': 56.0, 'grade': 'A+', 'gp': 9.0,  'absent': False},
-            {'idx': 2, 'int': 16.0, 'ext': 36.0, 'grade': 'B',  'gp': 6.0,  'absent': False},
-            {'idx': 3, 'int': 11.0, 'ext': 23.0, 'grade': 'F',  'gp': 0.0,  'absent': False},
-            {'idx': 4, 'int': 0.0,  'ext': 0.0,  'grade': 'F',  'gp': 0.0,  'absent': True}
+        subjects_marks_data = [
+            # BCS-011
+            ('BCS-011', [
+                {'idx': 0, 'int': 25.0, 'ext': 62.0, 'absent': False}, # 87% -> O
+                {'idx': 1, 'int': 24.0, 'ext': 54.0, 'absent': False}, # 78% -> A+
+                {'idx': 2, 'int': 18.0, 'ext': 42.0, 'absent': False}, # 60% -> B+
+                {'idx': 3, 'int': 12.0, 'ext': 26.0, 'absent': False}, # 38% -> F (Failed)
+                {'idx': 4, 'int': 0.0,  'ext': 0.0,  'absent': True}   # Absent
+            ]),
+            # BCS-012 (Mathematics)
+            ('BCS-012', [
+                {'idx': 0, 'int': 26.0, 'ext': 64.0, 'absent': False}, # 90% -> O
+                {'idx': 1, 'int': 23.0, 'ext': 58.0, 'absent': False}, # 81% -> A+
+                {'idx': 2, 'int': 16.0, 'ext': 36.0, 'absent': False}, # 52% -> B
+                {'idx': 3, 'int': 14.0, 'ext': 28.0, 'absent': False}, # 42% -> C (Borderline)
+                {'idx': 4, 'int': 0.0,  'ext': 0.0,  'absent': True}   # Absent
+            ]),
+            # BCSL-013 (Computer Basics and Software Lab)
+            ('BCSL-013', [
+                {'idx': 0, 'int': 27.0, 'ext': 65.0, 'absent': False}, # 92% -> O
+                {'idx': 1, 'int': 25.0, 'ext': 56.0, 'absent': False}, # 81% -> A+
+                {'idx': 2, 'int': 20.0, 'ext': 48.0, 'absent': False}, # 68% -> A
+                {'idx': 3, 'int': 15.0, 'ext': 32.0, 'absent': False}, # 47% -> C
+                {'idx': 4, 'int': 0.0,  'ext': 0.0,  'absent': True}   # Absent
+            ])
         ]
 
-        for s in sample_scores:
-            stu = seeded_students[s['idx']]
-            existing_mark = Marks.query.filter_by(
-                student_id=stu.student_id,
-                class_subject_id=bcs011_map.class_subject_id,
-                term_id=term.term_id
+        for sub_code, scores in subjects_marks_data:
+            mapping = ClassSubject.query.filter_by(
+                class_id=bca1.class_id,
+                subject_id=seeded_subjects[sub_code].subject_id
             ).first()
 
-            if not existing_mark:
-                mark = Marks(
+            if not mapping:
+                continue
+
+            for s in scores:
+                stu = seeded_students[s['idx']]
+                existing_mark = Marks.query.filter_by(
                     student_id=stu.student_id,
-                    class_subject_id=bcs011_map.class_subject_id,
-                    term_id=term.term_id,
-                    internal_marks=s['int'],
-                    external_marks=s['ext'],
-                    grade=s['grade'],
-                    grade_point=s['gp'],
-                    is_absent=s['absent'],
-                    updated_by=admin_user.user_id
-                )
-                mark.calculate()
-                db.session.add(mark)
-                print(f"  + Added Score for {stu.full_name}: Total {mark.total_marks}, Grade {mark.grade}")
+                    class_subject_id=mapping.class_subject_id,
+                    term_id=term.term_id
+                ).first()
+
+                if not existing_mark:
+                    mark = Marks(
+                        student_id=stu.student_id,
+                        class_subject_id=mapping.class_subject_id,
+                        term_id=term.term_id,
+                        internal_marks=s['int'],
+                        external_marks=s['ext'],
+                        is_absent=s['absent'],
+                        updated_by=admin_user.user_id
+                    )
+                    mark.calculate(class_subject=mapping, scale=scale)
+                    db.session.add(mark)
+                    print(f"  + Added [{sub_code}] Score for {stu.full_name}: Total {mark.total_marks}, Grade {mark.grade}")
+                else:
+                    existing_mark.internal_marks = s['int']
+                    existing_mark.external_marks = s['ext']
+                    existing_mark.is_absent = s['absent']
+                    existing_mark.calculate(class_subject=mapping, scale=scale)
+                    print(f"  * Updated [{sub_code}] Score for {stu.full_name}: Total {existing_mark.total_marks}, Grade {existing_mark.grade}")
 
         db.session.commit()
-        print("\n Database Seeding Complete! System ready for Phase 2 operations.\n")
+        print("\n Database Seeding Complete! System ready for Phase 5 operations.\n")
 
 
 if __name__ == '__main__':

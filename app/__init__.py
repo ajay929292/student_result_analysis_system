@@ -69,10 +69,12 @@ def create_app(config_name=None):
     from app.routes.academic_routes import academic_bp
     from app.routes.student_routes import student_bp
     from app.routes.marks_routes import marks_bp
+    from app.routes.analytics_routes import analytics_bp
     app.register_blueprint(main_bp)
     app.register_blueprint(auth_bp)
     app.register_blueprint(academic_bp)
     app.register_blueprint(student_bp)
     app.register_blueprint(marks_bp)
+    app.register_blueprint(analytics_bp)
 
     return app
