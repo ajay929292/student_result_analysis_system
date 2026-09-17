@@ -84,7 +84,8 @@
             </div>
         </div>
 
-        <form method="POST" action="{{ url_for('marks.bulk_upload') }}" enctype="multipart/form-data" id="bulkUploadForm">
+        <form method="POST" action="{{ url_for('marks.bulk_upload') }}" enctype="multipart/form-data" id="bulkUploadForm"
+              data-template-url="{{ url_for('marks.download_template') }}">
             
             <!-- Target Selection Row: Class, Subject, Exam Term -->
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.25rem; margin-bottom: 1.5rem;">
@@ -202,7 +203,9 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        window.location.href = `{{ url_for('marks.download_template') }}?class_id=${classId}&subject_id=${subjectId}&format=${format}`;
+        const form = document.getElementById('bulkUploadForm');
+        const baseUrl = (form && form.dataset.templateUrl) || '/marks/template';
+        window.location.href = `${baseUrl}?class_id=${encodeURIComponent(classId)}&subject_id=${encodeURIComponent(subjectId)}&format=${encodeURIComponent(format)}`;
     }
 
     if (downloadCsvBtn) downloadCsvBtn.addEventListener('click', () => triggerDownload('csv'));

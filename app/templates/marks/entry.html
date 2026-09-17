@@ -142,7 +142,9 @@
         </div>
 
         <!-- Student Score Entry Form & Grid -->
-        <form method="POST" action="{{ url_for('marks.entry') }}" id="marksEntryForm">
+        <form method="POST" action="{{ url_for('marks.entry') }}" id="marksEntryForm"
+              data-max-total="{{ mapping.max_total_marks if mapping else 100.0 }}"
+              data-pass-marks="{{ mapping.pass_marks if mapping else 40.0 }}">
             <input type="hidden" name="class_id" value="{{ selected_class.class_id }}">
             <input type="hidden" name="subject_id" value="{{ selected_subject.subject_id }}">
             <input type="hidden" name="term_id" value="{{ selected_term.term_id }}">
@@ -338,8 +340,9 @@
 {% block extra_js %}
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-    const maxTotal = {{ mapping.max_total_marks if mapping else 100.0 }};
-    const passMarks = {{ mapping.pass_marks if mapping else 40.0 }};
+    const marksForm = document.getElementById('marksEntryForm');
+    const maxTotal = marksForm ? parseFloat(marksForm.dataset.maxTotal || '100') : 100.0;
+    const passMarks = marksForm ? parseFloat(marksForm.dataset.passMarks || '40') : 40.0;
 
     function calculateGrade(percentage) {
         if (percentage >= 85.0) return { grade: 'O', point: 10.0, badge: 'badge-success' };
