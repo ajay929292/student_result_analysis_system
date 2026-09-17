@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+
+{% block title %}User Profile - {{ user.full_name }}{% endblock %}
+
+{% block content %}
+<div style="max-width: 760px; margin: 0 auto;">
+    <div style="margin-bottom: 1.5rem;">
+        <h1 style="font-size: 1.8rem; font-weight: 800; color: var(--text-main);">User Profile</h1>
+        <p style="color: var(--text-muted); font-size: 0.9rem;">Authenticated account credentials and institutional permissions.</p>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <div style="display: flex; align-items: center; gap: 1rem;">
+                <div class="user-avatar" style="width: 48px; height: 48px; font-size: 1.1rem;">
+                    {{ user.full_name[:2].upper() }}
+                </div>
+                <div>
+                    <h2 style="font-size: 1.2rem; font-weight: 700; color: var(--text-main); margin: 0;">{{ user.full_name }}</h2>
+                    <span style="font-size: 0.8rem; color: var(--text-muted);">@{{ user.username }}</span>
+                </div>
+            </div>
+            {% if user.role == 'ADMIN' %}
+                <span class="badge badge-primary">Administrator</span>
+            {% elif user.role == 'TEACHER' %}
+                <span class="badge badge-info">Teacher / Evaluator</span>
+            {% else %}
+                <span class="badge badge-success">Student</span>
+            {% endif %}
+        </div>
+
+        <div class="card-body" style="display: flex; flex-direction: column; gap: 1.25rem;">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                <div style="background: var(--bg-surface-elevated); padding: 1rem; border-radius: var(--radius-md); border: 1px solid var(--border-subtle);">
+                    <div style="font-size: 0.75rem; text-transform: uppercase; color: var(--text-dim); font-weight: 700;">Account ID</div>
+                    <div style="font-size: 1.1rem; font-weight: 700; color: var(--text-main); font-family: var(--font-mono);">#{{ user.user_id }}</div>
+                </div>
+
+                <div style="background: var(--bg-surface-elevated); padding: 1rem; border-radius: var(--radius-md); border: 1px solid var(--border-subtle);">
+                    <div style="font-size: 0.75rem; text-transform: uppercase; color: var(--text-dim); font-weight: 700;">Assigned Role</div>
+                    <div style="font-size: 1.1rem; font-weight: 700; color: var(--color-primary); font-family: var(--font-mono);">{{ user.role }}</div>
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                <div style="background: var(--bg-surface-elevated); padding: 1rem; border-radius: var(--radius-md); border: 1px solid var(--border-subtle);">
+                    <div style="font-size: 0.75rem; text-transform: uppercase; color: var(--text-dim); font-weight: 700;">Account Email</div>
+                    <div style="font-size: 0.95rem; color: var(--text-main);">{{ user.email or 'None Provided' }}</div>
+                </div>
+
+                <div style="background: var(--bg-surface-elevated); padding: 1rem; border-radius: var(--radius-md); border: 1px solid var(--border-subtle);">
+                    <div style="font-size: 0.75rem; text-transform: uppercase; color: var(--text-dim); font-weight: 700;">Account Status</div>
+                    <div style="font-size: 0.95rem; color: var(--color-success); display: flex; align-items: center; gap: 0.35rem;">
+                        <span style="font-size: 0.7rem;">●</span> Active & Verified
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card-footer" style="display: flex; justify-content: space-between; align-items: center;">
+            <a href="{{ url_for('main.index') }}" class="btn btn-secondary btn-sm">Back to Dashboard</a>
+            <a href="{{ url_for('auth.logout') }}" class="btn btn-danger btn-sm">Sign Out</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

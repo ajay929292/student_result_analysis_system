@@ -1,0 +1,17 @@
+# Web Framework & Extensions
+Flask>=3.0.3,<4.0.0
+Flask-SQLAlchemy>=3.1.1,<4.0.0
+Flask-Bcrypt>=1.0.1,<2.0.0
+python-dotenv>=1.0.1
+
+# Data Analysis & Excel Ingestion
+pandas>=2.2.2
+numpy>=2.0.0
+openpyxl>=3.1.5
+xlrd>=2.0.1
+
+# Reporting & PDF Generation
+reportlab>=4.2.5
+
+# Automated Testing
+pytest>=8.3.2

@@ -1,0 +1,293 @@
+{% extends "base.html" %}
+
+{% block title %}Academic Setup & Curriculum Registry{% endblock %}
+
+{% block content %}
+<div class="page-container">
+    <!-- Top Action Bar -->
+    <div class="page-header" style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
+        <div>
+            <h1 class="page-title" style="font-size: 1.75rem; font-weight: 800; display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.35rem;">
+                <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" style="color: var(--color-primary);">
+                    <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"/>
+                    <path d="M6 6h10M6 10h10"/>
+                </svg>
+                Academic Setup & Registry
+            </h1>
+            <p class="page-subtitle" style="color: var(--text-muted); font-size: 0.95rem; margin: 0;">
+                Configure academic sessions, cohort classes, master subjects, and evaluation parameters.
+            </p>
+        </div>
+        <div style="display: flex; gap: 0.75rem; align-items: center;">
+            <a href="{{ url_for('academic.curriculum') }}" class="btn btn-primary" style="gap: 0.5rem; font-weight: 600;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="3" width="7" height="7"/>
+                    <rect x="14" y="3" width="7" height="7"/>
+                    <rect x="14" y="14" width="7" height="7"/>
+                    <rect x="3" y="14" width="7" height="7"/>
+                </svg>
+                Curriculum Mapping
+            </a>
+            <a href="{{ url_for('student.index') }}" class="btn btn-secondary" style="gap: 0.5rem;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+                    <circle cx="9" cy="7" r="4"/>
+                </svg>
+                View Roster
+            </a>
+        </div>
+    </div>
+
+    <!-- Quick Stat Summary Row -->
+    <div class="stats-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.25rem; margin-bottom: 2rem;">
+        <div class="card stat-card" style="padding: 1.25rem; display: flex; align-items: center; gap: 1rem; border-left: 4px solid var(--color-primary);">
+            <div style="width: 46px; height: 46px; border-radius: 12px; background: rgba(99, 102, 241, 0.15); display: flex; align-items: center; justify-content: center; color: var(--color-primary);">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                    <line x1="16" y1="2" x2="16" y2="6"/>
+                    <line x1="8" y1="2" x2="8" y2="6"/>
+                    <line x1="3" y1="10" x2="21" y2="10"/>
+                </svg>
+            </div>
+            <div>
+                <span style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); font-weight: 600;">Academic Sessions</span>
+                <div style="font-size: 1.5rem; font-weight: 700;">{{ years|length }} Sessions</div>
+            </div>
+        </div>
+
+        <div class="card stat-card" style="padding: 1.25rem; display: flex; align-items: center; gap: 1rem; border-left: 4px solid var(--color-accent);">
+            <div style="width: 46px; height: 46px; border-radius: 12px; background: rgba(6, 182, 212, 0.15); display: flex; align-items: center; justify-content: center; color: var(--color-accent);">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                    <circle cx="9" cy="7" r="4"/>
+                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                    <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                </svg>
+            </div>
+            <div>
+                <span style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); font-weight: 600;">Cohorts / Classes</span>
+                <div style="font-size: 1.5rem; font-weight: 700;">{{ classes|length }} Cohorts</div>
+            </div>
+        </div>
+
+        <div class="card stat-card" style="padding: 1.25rem; display: flex; align-items: center; gap: 1rem; border-left: 4px solid var(--color-warning);">
+            <div style="width: 46px; height: 46px; border-radius: 12px; background: rgba(245, 158, 11, 0.15); display: flex; align-items: center; justify-content: center; color: var(--color-warning);">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+                    <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+                </svg>
+            </div>
+            <div>
+                <span style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); font-weight: 600;">Registered Subjects</span>
+                <div style="font-size: 1.5rem; font-weight: 700;">{{ subjects|length }} Courses</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3-Column Administration Sections -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); gap: 1.75rem;">
+        
+        <!-- SECTION 1: Academic Years -->
+        <div class="card" style="display: flex; flex-direction: column; justify-content: space-between;">
+            <div>
+                <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 1rem; margin-bottom: 1.25rem;">
+                    <h2 style="font-size: 1.15rem; font-weight: 700; margin: 0; display: flex; align-items: center; gap: 0.5rem;">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: var(--color-primary);">
+                            <circle cx="12" cy="12" r="10"/>
+                            <polyline points="12 6 12 12 16 14"/>
+                        </svg>
+                        Academic Sessions
+                    </h2>
+                    <span class="badge badge-primary">{{ years|length }} Active / Historic</span>
+                </div>
+
+                <!-- List of Years -->
+                <div style="display: flex; flex-direction: column; gap: 0.75rem; margin-bottom: 1.5rem; max-height: 280px; overflow-y: auto;">
+                    {% for y in years %}
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.75rem 1rem; background: var(--bg-hover); border-radius: var(--radius-md); border: 1px solid var(--border-color);">
+                        <div>
+                            <div style="font-weight: 600; font-family: var(--font-mono); font-size: 1rem;">{{ y.year_label }}</div>
+                            <div style="font-size: 0.75rem; color: var(--text-muted);">{{ y.classes|length }} associated classes</div>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 0.5rem;">
+                            {% if y.is_active %}
+                            <span class="badge badge-success" style="display: inline-flex; align-items: center; gap: 4px;">
+                                <span style="font-size: 0.5rem;">●</span> Current Active
+                            </span>
+                            {% else %}
+                            <form action="{{ url_for('academic.toggle_year_active', year_id=y.year_id) }}" method="POST" style="margin: 0;">
+                                <button type="submit" class="btn btn-secondary btn-sm" title="Activate this session">
+                                    Set Active
+                                </button>
+                            </form>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% else %}
+                    <div class="empty-state" style="padding: 1.5rem; text-align: center; color: var(--text-muted);">
+                        No academic sessions configured yet.
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Create Year Form -->
+            <div style="border-top: 1px solid var(--border-color); padding-top: 1.25rem;">
+                <h3 style="font-size: 0.9rem; font-weight: 600; margin-bottom: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em;">
+                    + Register New Academic Session
+                </h3>
+                <form action="{{ url_for('academic.create_year') }}" method="POST">
+                    <div style="display: flex; gap: 0.5rem; margin-bottom: 0.75rem;">
+                        <input type="text" name="year_label" class="form-control" placeholder="e.g. 2026-2027" required pattern="\d{4}-\d{4}" title="Format: YYYY-YYYY (e.g., 2026-2027)">
+                        <button type="submit" class="btn btn-primary" style="white-space: nowrap;">Create</button>
+                    </div>
+                    <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; color: var(--text-muted); cursor: pointer;">
+                        <input type="checkbox" name="is_active" value="1">
+                        Set as active primary session immediately
+                    </label>
+                </form>
+            </div>
+        </div>
+
+        <!-- SECTION 2: Classes & Cohorts -->
+        <div class="card" style="display: flex; flex-direction: column; justify-content: space-between;">
+            <div>
+                <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 1rem; margin-bottom: 1.25rem;">
+                    <h2 style="font-size: 1.15rem; font-weight: 700; margin: 0; display: flex; align-items: center; gap: 0.5rem;">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: var(--color-accent);">
+                            <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
+                        </svg>
+                        Classes & Sections
+                    </h2>
+                    <span class="badge badge-accent">{{ classes|length }} Total</span>
+                </div>
+
+                <!-- List of Classes -->
+                <div style="display: flex; flex-direction: column; gap: 0.75rem; margin-bottom: 1.5rem; max-height: 280px; overflow-y: auto;">
+                    {% for c in classes %}
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.75rem 1rem; background: var(--bg-hover); border-radius: var(--radius-md); border: 1px solid var(--border-color);">
+                        <div>
+                            <div style="font-weight: 600; font-size: 0.95rem;">
+                                <a href="{{ url_for('student.index', class_id=c.class_id) }}" style="color: var(--text-main); text-decoration: none; display: flex; align-items: center; gap: 0.35rem;">
+                                    {{ c.display_name }}
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+                                        <polyline points="15 3 21 3 21 9"/>
+                                        <line x1="10" y1="14" x2="21" y2="3"/>
+                                    </svg>
+                                </a>
+                            </div>
+                            <div style="font-size: 0.75rem; color: var(--text-muted);">
+                                {{ c.academic_year.year_label }} &bull; {{ c.students|length }} student(s)
+                            </div>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 0.5rem;">
+                            {% if c.students|length == 0 %}
+                            <form action="{{ url_for('academic.delete_class', class_id=c.class_id) }}" method="POST" onsubmit="return confirm('Delete empty class {{ c.display_name }}?');" style="margin: 0;">
+                                <button type="submit" class="icon-btn" style="color: var(--color-danger); width: 32px; height: 32px;" title="Delete Class">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <polyline points="3 6 5 6 21 6"/>
+                                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                                    </svg>
+                                </button>
+                            </form>
+                            {% else %}
+                            <span class="badge" style="background: rgba(255,255,255,0.05); color: var(--text-muted); font-size: 0.75rem;">
+                                {{ c.students|length }} enrolled
+                            </span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% else %}
+                    <div class="empty-state" style="padding: 1.5rem; text-align: center; color: var(--text-muted);">
+                        No classes configured yet.
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Create Class Form -->
+            <div style="border-top: 1px solid var(--border-color); padding-top: 1.25rem;">
+                <h3 style="font-size: 0.9rem; font-weight: 600; margin-bottom: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em;">
+                    + Add New Class / Cohort
+                </h3>
+                <form action="{{ url_for('academic.create_class') }}" method="POST">
+                    <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 0.5rem; margin-bottom: 0.5rem;">
+                        <input type="text" name="class_name" class="form-control" placeholder="Class (e.g. MCA-Sem-2)" required>
+                        <input type="text" name="section" class="form-control" placeholder="Sec (A)" value="A" maxlength="10">
+                    </div>
+                    <div style="display: flex; gap: 0.5rem;">
+                        <select name="year_id" class="form-control" required style="background: var(--bg-hover);">
+                            <option value="" disabled selected>Select Academic Session</option>
+                            {% for y in years %}
+                            <option value="{{ y.year_id }}" {% if y.is_active %}selected{% endif %}>
+                                {{ y.year_label }} {% if y.is_active %}(Active){% endif %}
+                            </option>
+                            {% endfor %}
+                        </select>
+                        <button type="submit" class="btn btn-accent" style="white-space: nowrap;">Add Class</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- SECTION 3: Master Subject Registry -->
+        <div class="card" style="display: flex; flex-direction: column; justify-content: space-between;">
+            <div>
+                <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 1rem; margin-bottom: 1.25rem;">
+                    <h2 style="font-size: 1.15rem; font-weight: 700; margin: 0; display: flex; align-items: center; gap: 0.5rem;">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: var(--color-warning);">
+                            <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"/>
+                        </svg>
+                        Master Subject Registry
+                    </h2>
+                    <span class="badge badge-warning">{{ subjects|length }} Courses</span>
+                </div>
+
+                <!-- List of Subjects -->
+                <div style="display: flex; flex-direction: column; gap: 0.75rem; margin-bottom: 1.5rem; max-height: 280px; overflow-y: auto;">
+                    {% for s in subjects %}
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.75rem 1rem; background: var(--bg-hover); border-radius: var(--radius-md); border: 1px solid var(--border-color);">
+                        <div>
+                            <div style="font-weight: 700; font-family: var(--font-mono); color: var(--color-warning); font-size: 0.95rem;">
+                                {{ s.subject_code }}
+                            </div>
+                            <div style="font-size: 0.85rem; color: var(--text-main); font-weight: 500;">
+                                {{ s.subject_name }}
+                            </div>
+                        </div>
+                        <div style="text-align: right;">
+                            <span class="badge" style="background: rgba(245, 158, 11, 0.1); color: var(--color-warning); font-weight: 600;">
+                                {{ s.credits }} Credits
+                            </span>
+                        </div>
+                    </div>
+                    {% else %}
+                    <div class="empty-state" style="padding: 1.5rem; text-align: center; color: var(--text-muted);">
+                        No subjects registered in master registry yet.
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Create Subject Form -->
+            <div style="border-top: 1px solid var(--border-color); padding-top: 1.25rem;">
+                <h3 style="font-size: 0.9rem; font-weight: 600; margin-bottom: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em;">
+                    + Register Master Subject
+                </h3>
+                <form action="{{ url_for('academic.create_subject') }}" method="POST">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; margin-bottom: 0.5rem;">
+                        <input type="text" name="subject_code" class="form-control" placeholder="Code (e.g. MCS-213)" required style="text-transform: uppercase;">
+                        <input type="number" name="credits" class="form-control" placeholder="Credits" value="4" min="1" max="16" required>
+                    </div>
+                    <div style="display: flex; gap: 0.5rem;">
+                        <input type="text" name="subject_name" class="form-control" placeholder="Subject Title (e.g. Software Engineering)" required>
+                        <button type="submit" class="btn btn-warning" style="white-space: nowrap; font-weight: 600;">Add</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

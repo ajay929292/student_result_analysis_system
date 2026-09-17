@@ -1,0 +1,186 @@
+{% extends "base.html" %}
+
+{% block title %}Curriculum Mapping & Evaluation Thresholds{% endblock %}
+
+{% block content %}
+<div class="page-container">
+    <!-- Top Action Bar -->
+    <div class="page-header" style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
+        <div>
+            <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.25rem;">
+                <a href="{{ url_for('academic.index') }}" style="color: var(--text-muted); text-decoration: none; font-size: 0.85rem; display: flex; align-items: center; gap: 4px;">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="19" y1="12" x2="5" y2="12"/>
+                        <polyline points="12 19 5 12 12 5"/>
+                    </svg>
+                    Back to Academic Setup
+                </a>
+            </div>
+            <h1 class="page-title" style="font-size: 1.75rem; font-weight: 800; display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.35rem;">
+                <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" style="color: var(--color-primary);">
+                    <rect x="3" y="3" width="7" height="7"/>
+                    <rect x="14" y="3" width="7" height="7"/>
+                    <rect x="14" y="14" width="7" height="7"/>
+                    <rect x="3" y="14" width="7" height="7"/>
+                </svg>
+                Curriculum Evaluation Mapping
+            </h1>
+            <p class="page-subtitle" style="color: var(--text-muted); font-size: 0.95rem; margin: 0;">
+                Assign course subjects to classes with evaluation weights (Internal vs External) and passing criteria.
+            </p>
+        </div>
+        <div style="display: flex; gap: 0.75rem; align-items: center;">
+            <a href="{{ url_for('academic.index') }}" class="btn btn-secondary" style="gap: 0.5rem;">
+                Academic Setup Hub
+            </a>
+            <a href="{{ url_for('student.index') }}" class="btn btn-secondary" style="gap: 0.5rem;">
+                Student Roster
+            </a>
+        </div>
+    </div>
+
+    <!-- Mapping Layout: 2 Columns (Mapping Form on left, Curriculum Table on right) -->
+    <div style="display: grid; grid-template-columns: 360px 1fr; gap: 1.75rem; align-items: flex-start;">
+        
+        <!-- Left Column: Add Mapping Card -->
+        <div class="card" style="padding: 1.5rem;">
+            <h2 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 1.25rem; display: flex; align-items: center; gap: 0.5rem;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: var(--color-primary);">
+                    <line x1="12" y1="5" x2="12" y2="19"/>
+                    <line x1="5" y1="12" x2="19" y2="12"/>
+                </svg>
+                Map Course to Class
+            </h2>
+
+            <form action="{{ url_for('academic.map_curriculum') }}" method="POST">
+                <div class="form-group" style="margin-bottom: 1rem;">
+                    <label class="form-label" style="font-size: 0.85rem; font-weight: 600; color: var(--text-muted);">Target Class / Cohort</label>
+                    <select name="class_id" class="form-control" required style="background: var(--bg-hover);">
+                        <option value="" disabled selected>Choose class cohort...</option>
+                        {% for c in classes %}
+                        <option value="{{ c.class_id }}">{{ c.display_name }} ({{ c.academic_year.year_label }})</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="form-group" style="margin-bottom: 1rem;">
+                    <label class="form-label" style="font-size: 0.85rem; font-weight: 600; color: var(--text-muted);">Master Subject</label>
+                    <select name="subject_id" class="form-control" required style="background: var(--bg-hover);">
+                        <option value="" disabled selected>Choose subject from registry...</option>
+                        {% for s in subjects %}
+                        <option value="{{ s.subject_id }}">{{ s.subject_code }} - {{ s.subject_name }} ({{ s.credits }} cr)</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div style="background: var(--bg-hover); padding: 1rem; border-radius: var(--radius-md); border: 1px solid var(--border-color); margin-bottom: 1.25rem;">
+                    <span style="font-size: 0.75rem; text-transform: uppercase; font-weight: 700; letter-spacing: 0.05em; color: var(--color-primary); display: block; margin-bottom: 0.75rem;">
+                        Evaluation Mark Weights
+                    </span>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 0.75rem;">
+                        <div>
+                            <label class="form-label" style="font-size: 0.75rem; color: var(--text-muted);">Max Internal</label>
+                            <input type="number" step="0.5" name="max_internal_marks" class="form-control" value="30.0" required min="0" max="100">
+                        </div>
+                        <div>
+                            <label class="form-label" style="font-size: 0.75rem; color: var(--text-muted);">Max External</label>
+                            <input type="number" step="0.5" name="max_external_marks" class="form-control" value="70.0" required min="0" max="100">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="form-label" style="font-size: 0.75rem; color: var(--text-muted);">Aggregate Pass Marks (%)</label>
+                        <input type="number" step="0.5" name="pass_marks" class="form-control" value="40.0" required min="0" max="100">
+                        <span style="font-size: 0.75rem; color: var(--text-muted); display: block; margin-top: 0.25rem;">Standard IGNOU cutoff: 40% aggregate</span>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center; font-weight: 600;">
+                    Assign Subject to Class
+                </button>
+            </form>
+        </div>
+
+        <!-- Right Column: Active Curriculum Allocations -->
+        <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+            {% for c in classes %}
+            {% set class_mappings = class_curriculum[c.class_id] %}
+            <div class="card" style="padding: 1.25rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 0.75rem; margin-bottom: 1rem;">
+                    <div>
+                        <h3 style="font-size: 1.15rem; font-weight: 700; margin: 0; display: flex; align-items: center; gap: 0.5rem;">
+                            <span class="badge badge-primary">{{ c.class_name }} - {{ c.section }}</span>
+                            <span style="font-size: 0.85rem; color: var(--text-muted); font-weight: 500;">({{ c.academic_year.year_label }})</span>
+                        </h3>
+                    </div>
+                    <span class="badge" style="background: rgba(255,255,255,0.06); color: var(--text-muted);">
+                        {{ class_mappings|length }} Assigned Subjects
+                    </span>
+                </div>
+
+                {% if class_mappings %}
+                <div class="table-responsive">
+                    <table class="table" style="width: 100%; font-size: 0.9rem;">
+                        <thead>
+                            <tr style="text-align: left; color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase;">
+                                <th style="padding: 0.5rem;">Code</th>
+                                <th style="padding: 0.5rem;">Subject Name</th>
+                                <th style="padding: 0.5rem; text-align: center;">Credits</th>
+                                <th style="padding: 0.5rem; text-align: center;">Internal Max</th>
+                                <th style="padding: 0.5rem; text-align: center;">External Max</th>
+                                <th style="padding: 0.5rem; text-align: center;">Pass Min</th>
+                                <th style="padding: 0.5rem; text-align: right;">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for m in class_mappings %}
+                            <tr style="border-bottom: 1px solid rgba(255,255,255,0.03);">
+                                <td style="padding: 0.75rem 0.5rem; font-weight: 700; font-family: var(--font-mono); color: var(--color-warning);">
+                                    {{ m.subject.subject_code }}
+                                </td>
+                                <td style="padding: 0.75rem 0.5rem; font-weight: 500;">
+                                    {{ m.subject.subject_name }}
+                                </td>
+                                <td style="padding: 0.75rem 0.5rem; text-align: center;">
+                                    <span class="badge badge-accent" style="font-size: 0.75rem;">{{ m.subject.credits }}</span>
+                                </td>
+                                <td style="padding: 0.75rem 0.5rem; text-align: center; font-family: var(--font-mono);">
+                                    {{ m.max_internal_marks }}
+                                </td>
+                                <td style="padding: 0.75rem 0.5rem; text-align: center; font-family: var(--font-mono);">
+                                    {{ m.max_external_marks }}
+                                </td>
+                                <td style="padding: 0.75rem 0.5rem; text-align: center; font-family: var(--font-mono); color: var(--color-success);">
+                                    {{ m.pass_marks }}
+                                </td>
+                                <td style="padding: 0.75rem 0.5rem; text-align: right;">
+                                    <form action="{{ url_for('academic.delete_curriculum_mapping', mapping_id=m.mapping_id) }}" method="POST" onsubmit="return confirm('Remove {{ m.subject.subject_code }} from {{ c.display_name }}?');" style="margin: 0;">
+                                        <button type="submit" class="icon-btn" style="color: var(--color-danger); width: 28px; height: 28px;" title="Unmap subject">
+                                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <polyline points="3 6 5 6 21 6"/>
+                                                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                                            </svg>
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div style="padding: 1.5rem; text-align: center; color: var(--text-muted); font-size: 0.85rem; background: var(--bg-hover); border-radius: var(--radius-md);">
+                    No subjects assigned yet to this class. Use the form on the left to map subjects.
+                </div>
+                {% endif %}
+            </div>
+            {% else %}
+            <div class="card" style="padding: 2.5rem; text-align: center; color: var(--text-muted);">
+                <p>No classes available to map curriculum. Please register a class first.</p>
+                <a href="{{ url_for('academic.index') }}" class="btn btn-primary" style="margin-top: 1rem;">Go to Academic Setup</a>
+            </div>
+            {% endfor %}
+        </div>
+
+    </div>
+</div>
+{% endblock %}
