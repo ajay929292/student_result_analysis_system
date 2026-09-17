@@ -85,24 +85,22 @@
 
                 <div class="nav-section-title">Result Management</div>
                 <li class="nav-item">
-                    <a href="#" class="nav-link">
+                    <a href="{{ url_for('marks.entry') }}" class="nav-link {% if request.endpoint == 'marks.entry' %}active{% endif %}">
                         <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                             <path d="M12 20h9"/>
                             <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
                         </svg>
                         <span class="nav-text">Manual Marks Entry</span>
-                        <span class="nav-tag">Phase 4</span>
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="#" class="nav-link">
+                    <a href="{{ url_for('marks.bulk_upload') }}" class="nav-link {% if request.endpoint == 'marks.bulk_upload' %}active{% endif %}">
                         <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                             <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
                             <polyline points="17 8 12 3 7 8"/>
                             <line x1="12" y1="3" x2="12" y2="15"/>
                         </svg>
                         <span class="nav-text">Batch CSV / Excel</span>
-                        <span class="nav-tag">Phase 4</span>
                     </a>
                 </li>
 

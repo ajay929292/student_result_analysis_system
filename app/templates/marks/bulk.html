@@ -1,0 +1,212 @@
+{% extends "base.html" %}
+
+{% block title %}Batch Marks Spreadsheet Ingestion{% endblock %}
+
+{% block content %}
+<div class="page-container" style="max-width: 860px; margin: 0 auto;">
+    <!-- Back breadcrumb -->
+    <div style="margin-bottom: 1.5rem;">
+        <a href="{{ url_for('marks.entry') }}" style="color: var(--text-muted); text-decoration: none; font-size: 0.9rem; display: inline-flex; align-items: center; gap: 0.5rem;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="19" y1="12" x2="5" y2="12"/>
+                <polyline points="12 19 5 12 12 5"/>
+            </svg>
+            Back to Marks Evaluation Grid
+        </a>
+    </div>
+
+    <!-- Validation Errors Display (Atomic Rollback Diagnostics) -->
+    {% if validation_errors %}
+    <div class="card" style="padding: 1.5rem; margin-bottom: 2rem; border-left: 4px solid var(--color-danger); background: rgba(239, 68, 68, 0.05);">
+        <div style="display: flex; align-items: flex-start; gap: 1rem; margin-bottom: 1rem;">
+            <div style="width: 36px; height: 36px; border-radius: 50%; background: rgba(239, 68, 68, 0.2); display: flex; align-items: center; justify-content: center; color: var(--color-danger); flex-shrink: 0;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"/>
+                    <line x1="12" y1="8" x2="12" y2="12"/>
+                    <line x1="12" y1="16" x2="12.01" y2="16"/>
+                </svg>
+            </div>
+            <div>
+                <h3 style="font-size: 1.1rem; font-weight: 700; color: var(--color-danger); margin: 0 0 0.25rem 0;">
+                    Spreadsheet Ingestion Rejected &mdash; {{ validation_errors|length }} Error(s) Detected
+                </h3>
+                <p style="font-size: 0.9rem; color: var(--text-muted); margin: 0;">
+                    <strong>Atomic Ingestion Principle:</strong> To preserve academic record integrity, <em>zero changes were written to the database</em>. Correct the highlighted errors below and re-upload.
+                </p>
+            </div>
+        </div>
+
+        <div style="max-height: 250px; overflow-y: auto; background: var(--bg-card); border-radius: var(--radius-md); border: 1px solid var(--border-color); padding: 0.75rem 1rem;">
+            <ul style="margin: 0; padding-left: 1.25rem; font-size: 0.85rem; font-family: var(--font-mono); color: var(--color-danger); display: flex; flex-direction: column; gap: 0.4rem;">
+                {% for err in validation_errors %}
+                <li>{{ err }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Main Ingestion Card -->
+    <div class="card" style="padding: 2rem;">
+        <div class="card-header" style="border-bottom: 1px solid var(--border-color); padding-bottom: 1.25rem; margin-bottom: 1.75rem; display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem;">
+            <div>
+                <h1 class="page-title" style="font-size: 1.5rem; font-weight: 800; display: flex; align-items: center; gap: 0.75rem; margin: 0 0 0.25rem 0;">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" style="color: var(--color-accent);">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                        <polyline points="17 8 12 3 7 8"/>
+                        <line x1="12" y1="3" x2="12" y2="15"/>
+                    </svg>
+                    Batch Marks Spreadsheet Ingestion
+                </h1>
+                <p style="color: var(--text-muted); font-size: 0.9rem; margin: 0;">
+                    High-throughput ingestion of student examination scores supporting CSV, XLSX, and XLS formats.
+                </p>
+            </div>
+
+            <!-- Download Pre-populated Template Links -->
+            <div style="display: flex; gap: 0.5rem; align-items: center;">
+                <button type="button" id="downloadCsvBtn" class="btn btn-secondary btn-sm" style="gap: 0.4rem;">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                        <polyline points="7 10 12 15 17 10"/>
+                        <line x1="12" y1="15" x2="12" y2="3"/>
+                    </svg>
+                    Template (.csv)
+                </button>
+                <button type="button" id="downloadXlsxBtn" class="btn btn-secondary btn-sm" style="gap: 0.4rem;">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                        <polyline points="7 10 12 15 17 10"/>
+                        <line x1="12" y1="15" x2="12" y2="3"/>
+                    </svg>
+                    Template (.xlsx)
+                </button>
+            </div>
+        </div>
+
+        <form method="POST" action="{{ url_for('marks.bulk_upload') }}" enctype="multipart/form-data" id="bulkUploadForm">
+            
+            <!-- Target Selection Row: Class, Subject, Exam Term -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.25rem; margin-bottom: 1.5rem;">
+                
+                <div class="form-group" style="margin: 0;">
+                    <label class="form-label" style="font-weight: 600; font-size: 0.85rem; margin-bottom: 0.35rem; display: block;">
+                        Target Class / Cohort <span style="color: var(--color-danger);">*</span>
+                    </label>
+                    <select name="class_id" id="classSelect" class="form-control" required style="background: var(--bg-hover);">
+                        <option value="" disabled selected>Select class cohort...</option>
+                        {% for c in classes %}
+                        <option value="{{ c.class_id }}" {% if selected_class_id == c.class_id %}selected{% endif %}>
+                            {{ c.display_name }} ({{ c.academic_year.year_label }})
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="form-group" style="margin: 0;">
+                    <label class="form-label" style="font-weight: 600; font-size: 0.85rem; margin-bottom: 0.35rem; display: block;">
+                        Course Subject <span style="color: var(--color-danger);">*</span>
+                    </label>
+                    <select name="subject_id" id="subjectSelect" class="form-control" required style="background: var(--bg-hover);">
+                        <option value="" disabled selected>Select course subject...</option>
+                        {% for s in subjects %}
+                        <option value="{{ s.subject_id }}" {% if selected_subject_id == s.subject_id %}selected{% endif %}>
+                            {{ s.subject_code }} &mdash; {{ s.subject_name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="form-group" style="margin: 0;">
+                    <label class="form-label" style="font-weight: 600; font-size: 0.85rem; margin-bottom: 0.35rem; display: block;">
+                        Exam Cycle Term <span style="color: var(--color-danger);">*</span>
+                    </label>
+                    <select name="term_id" class="form-control" required style="background: var(--bg-hover);">
+                        <option value="" disabled selected>Select exam term...</option>
+                        {% for t in terms %}
+                        <option value="{{ t.term_id }}" {% if selected_term_id == t.term_id %}selected{% endif %}>
+                            {{ t.term_name }} {% if t.is_locked %}(Locked){% endif %}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+            </div>
+
+            <!-- Drag & Drop Dropzone -->
+            <div class="form-group" style="margin-bottom: 2rem;">
+                <label class="form-label" style="font-weight: 600; font-size: 0.9rem; margin-bottom: 0.4rem; display: block;">
+                    Spreadsheet File (.csv, .xlsx, or .xls) <span style="color: var(--color-danger);">*</span>
+                </label>
+                <div style="border: 2px dashed var(--border-color); border-radius: var(--radius-lg); padding: 2.5rem 1.5rem; text-align: center; background: var(--bg-hover); transition: all 0.2s ease;">
+                    <svg width="42" height="42" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="color: var(--color-accent); margin: 0 auto 1rem;">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                        <polyline points="14 2 14 8 20 8"/>
+                        <line x1="12" y1="18" x2="12" y2="12"/>
+                        <line x1="9" y1="15" x2="12" y2="12"/>
+                        <line x1="15" y1="15" x2="12" y2="12"/>
+                    </svg>
+                    <p style="font-size: 0.95rem; font-weight: 600; margin-bottom: 0.35rem;">
+                        Upload formatted evaluation spreadsheet
+                    </p>
+                    <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 1.25rem;">
+                        Required headers: <code>enrollment_no</code>, <code>internal_marks</code>, <code>external_marks</code>. Optional: <code>is_absent</code>.
+                    </p>
+                    <input type="file" name="file" accept=".csv, .xlsx, .xls" required style="display: block; margin: 0 auto; max-width: 340px; font-size: 0.85rem;">
+                </div>
+            </div>
+
+            <!-- Ingestion Specification Guide -->
+            <div style="background: var(--bg-hover); border-radius: var(--radius-md); border: 1px solid var(--border-color); padding: 1.25rem; margin-bottom: 2rem;">
+                <h4 style="font-size: 0.85rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--color-primary); margin: 0 0 0.75rem 0;">
+                    Spreadsheet Format Requirements & Rules
+                </h4>
+                <ul style="margin: 0; padding-left: 1.25rem; font-size: 0.85rem; color: var(--text-muted); line-height: 1.6;">
+                    <li><strong>enrollment_no:</strong> Must correspond to an active enrolled student in the selected class cohort.</li>
+                    <li><strong>internal_marks:</strong> Must not exceed the course's maximum internal evaluation threshold.</li>
+                    <li><strong>external_marks:</strong> Must not exceed the course's Term-End Examination threshold.</li>
+                    <li><strong>is_absent:</strong> Set to <code>1</code>, <code>True</code>, or <code>Absent</code> if the candidate did not appear (forces marks to 0.0, Grade F).</li>
+                </ul>
+            </div>
+
+            <!-- Submit Button -->
+            <div style="display: flex; gap: 1rem; justify-content: flex-end; align-items: center; border-top: 1px solid var(--border-color); padding-top: 1.5rem;">
+                <a href="{{ url_for('marks.entry') }}" class="btn btn-secondary">Cancel</a>
+                <button type="submit" class="btn btn-accent" style="font-weight: 700; min-width: 180px; gap: 0.5rem;">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="17 8 12 3 7 8"/>
+                        <line x1="12" y1="3" x2="12" y2="15"/>
+                    </svg>
+                    Process Ingestion
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const classSelect = document.getElementById('classSelect');
+    const subjectSelect = document.getElementById('subjectSelect');
+    const downloadCsvBtn = document.getElementById('downloadCsvBtn');
+    const downloadXlsxBtn = document.getElementById('downloadXlsxBtn');
+
+    function triggerDownload(format) {
+        const classId = classSelect.value;
+        const subjectId = subjectSelect.value;
+
+        if (!classId || !subjectId) {
+            alert('Please select both a Target Class and a Course Subject to generate the pre-populated template.');
+            return;
+        }
+
+        window.location.href = `{{ url_for('marks.download_template') }}?class_id=${classId}&subject_id=${subjectId}&format=${format}`;
+    }
+
+    if (downloadCsvBtn) downloadCsvBtn.addEventListener('click', () => triggerDownload('csv'));
+    if (downloadXlsxBtn) downloadXlsxBtn.addEventListener('click', () => triggerDownload('xlsx'));
+});
+</script>
+{% endblock %}

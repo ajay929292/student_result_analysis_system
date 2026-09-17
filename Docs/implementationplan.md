@@ -161,21 +161,21 @@ gantt
 ### Phase 4: Marks Ingestion & Automated Grading Engine
 > **Goal:** Deliver reliable manual mark entry, high-speed CSV/Excel batch ingestion with validations, and automated grade computations.
 
-* [ ] **Milestone 4.1: Manual Interactive Marks Entry Interface**
+* [x] **Milestone 4.1: Manual Interactive Marks Entry Interface**
   * Build an interactive grid (`app/templates/marks/entry.html`):
     * Select Class, Subject, and Exam Term.
     * Tabular list of enrolled students with input fields for Internal and External scores.
     * Instant client-side validation preventing inputs exceeding maximum marks or negative numbers.
     * Absent checkbox automatically setting marks to 0 and marking `is_absent = True`.
 
-* [ ] **Milestone 4.2: Bulk File Ingestion Engine (CSV / Excel)**
+* [x] **Milestone 4.2: Bulk File Ingestion Engine (CSV / Excel)**
   * Downloadable pre-formatted CSV/Excel template populated with student enrollment numbers and names.
   * Ingestion Service (`app/services/ingestion_service.py`):
     * Parse uploaded `.csv`, `.xlsx`, or `.xls` files via Pandas.
     * Strict pre-ingestion validation: check column headers, verify student existence, validate numerical boundaries.
     * Atomic database transaction: commit all valid rows or reject the entire file with clear row-by-row error diagnostics.
 
-* [ ] **Milestone 4.3: Automated Calculation & Grading Engine**
+* [x] **Milestone 4.3: Automated Calculation & Grading Engine**
   * Calculation Service (`app/services/grading_service.py`):
     * Compute `total_marks = internal_marks + external_marks`.
     * Compute `percentage = (total_marks / max_marks) * 100`.
@@ -189,7 +189,7 @@ gantt
       * **C (Average):** 40% - 49.9%
       * **F (Fail):** < 40%
 
-* [ ] **Milestone 4.4: Result Audit Log & Update Locking**
+* [x] **Milestone 4.4: Result Audit Log & Update Locking**
   * Track user ID and timestamp (`updated_at`) for every mark change.
   * Optional "Lock Results" toggle to prevent modifications once approved by the exam department.
 

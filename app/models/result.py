@@ -9,6 +9,7 @@ class ExamTerm(db.Model):
     term_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     term_name = db.Column(db.String(50), nullable=False)
     year_id = db.Column(db.Integer, db.ForeignKey('academic_years.year_id', ondelete='CASCADE'), nullable=False)
+    is_locked = db.Column(db.Boolean, default=False, nullable=False)
     created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc), nullable=False)
 
     def __init__(self, term_name=None, year_id=None, is_locked=False, **kwargs):
@@ -166,31 +167,35 @@ class Marks(db.Model):
     term = db.relationship('ExamTerm', back_populates='marks')
     editor = db.relationship('User', foreign_keys=[updated_by])
 
-    def calculate(self, class_subject=None):
-        """Compute total marks, percentage, and check pass status against curriculum requirements."""
-        if self.is_absent:
-            self.internal_marks = 0.0
-            self.external_marks = 0.0
-            self.total_marks = 0.0
-            self.percentage = 0.0
-            self.grade = 'F'
-            self.grade_point = 0.0
-            self.is_passed = False
-            return
-
-        self.total_marks = round(self.internal_marks + self.external_marks, 2)
+    def calculate(self, class_subject=None, scale=None):
+        """Compute total marks, percentage, pass status, and letter grade."""
         target_cs = class_subject or self.class_subject
         if not target_cs and self.class_subject_id:
             from app.models.academic import ClassSubject
             target_cs = db.session.get(ClassSubject, self.class_subject_id)
 
-        if target_cs and target_cs.max_total_marks > 0:
-            self.percentage = round((self.total_marks / target_cs.max_total_marks) * 100, 2)
-            # Pass status check: total marks must meet or exceed pass threshold
-            self.is_passed = bool(self.total_marks >= target_cs.pass_marks)
-        else:
-            self.percentage = 0.0
-            self.is_passed = False
+        max_in = target_cs.max_internal_marks if target_cs else 30.0
+        max_ex = target_cs.max_external_marks if target_cs else 70.0
+        pass_m = target_cs.pass_marks if target_cs else 40.0
+
+        from app.services.grading_service import GradingService
+        res = GradingService.evaluate(
+            internal_marks=self.internal_marks,
+            external_marks=self.external_marks,
+            max_internal=max_in,
+            max_external=max_ex,
+            pass_marks=pass_m,
+            is_absent=self.is_absent,
+            scale=scale
+        )
+        self.internal_marks = res['internal_marks']
+        self.external_marks = res['external_marks']
+        self.total_marks = res['total_marks']
+        self.percentage = res['percentage']
+        self.is_absent = res['is_absent']
+        self.is_passed = res['is_passed']
+        self.grade = res['grade']
+        self.grade_point = res['grade_point']
 
     def to_dict(self):
         return {

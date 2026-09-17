@@ -1,0 +1,412 @@
+{% extends "base.html" %}
+
+{% block title %}Interactive Marks Evaluation Entry{% endblock %}
+
+{% block content %}
+<div class="page-container">
+    <!-- Page Header -->
+    <div class="page-header" style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
+        <div>
+            <h1 class="page-title" style="font-size: 1.75rem; font-weight: 800; display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.35rem;">
+                <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" style="color: var(--color-primary);">
+                    <path d="M12 20h9"/>
+                    <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
+                </svg>
+                Manual Marks Evaluation Grid
+            </h1>
+            <p class="page-subtitle" style="color: var(--text-muted); font-size: 0.95rem; margin: 0;">
+                Live interactive score capture with instant IGNOU 10-point grade computation and validation.
+            </p>
+        </div>
+        <div style="display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap;">
+            <a href="{{ url_for('marks.bulk_upload') }}" class="btn btn-accent" style="gap: 0.5rem; font-weight: 600;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                    <polyline points="17 8 12 3 7 8"/>
+                    <line x1="12" y1="3" x2="12" y2="15"/>
+                </svg>
+                Batch CSV / Excel Ingestion
+            </a>
+            <a href="{{ url_for('marks.terms') }}" class="btn btn-secondary" style="gap: 0.5rem;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                    <line x1="16" y1="2" x2="16" y2="6"/>
+                    <line x1="8" y1="2" x2="8" y2="6"/>
+                    <line x1="3" y1="10" x2="21" y2="10"/>
+                </svg>
+                Exam Cycles
+            </a>
+        </div>
+    </div>
+
+    <!-- Filter Card: Class, Subject, Term -->
+    <div class="card" style="padding: 1.5rem; margin-bottom: 2rem;">
+        <form method="GET" action="{{ url_for('marks.entry') }}" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)) auto; gap: 1rem; align-items: flex-end;">
+            
+            <div class="form-group" style="margin: 0;">
+                <label class="form-label" style="font-size: 0.85rem; font-weight: 600; color: var(--text-muted); margin-bottom: 0.35rem; display: block;">
+                    Target Class / Cohort
+                </label>
+                <select name="class_id" class="form-control" required style="background: var(--bg-hover);">
+                    <option value="" disabled selected>Select cohort...</option>
+                    {% for c in classes %}
+                    <option value="{{ c.class_id }}" {% if selected_class and selected_class.class_id == c.class_id %}selected{% endif %}>
+                        {{ c.display_name }} ({{ c.academic_year.year_label }})
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group" style="margin: 0;">
+                <label class="form-label" style="font-size: 0.85rem; font-weight: 600; color: var(--text-muted); margin-bottom: 0.35rem; display: block;">
+                    Course Subject
+                </label>
+                <select name="subject_id" class="form-control" required style="background: var(--bg-hover);">
+                    <option value="" disabled selected>Select course subject...</option>
+                    {% for s in subjects %}
+                    <option value="{{ s.subject_id }}" {% if selected_subject and selected_subject.subject_id == s.subject_id %}selected{% endif %}>
+                        {{ s.subject_code }} &mdash; {{ s.subject_name }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group" style="margin: 0;">
+                <label class="form-label" style="font-size: 0.85rem; font-weight: 600; color: var(--text-muted); margin-bottom: 0.35rem; display: block;">
+                    Exam Cycle Term
+                </label>
+                <select name="term_id" class="form-control" required style="background: var(--bg-hover);">
+                    <option value="" disabled selected>Select exam term...</option>
+                    {% for t in terms %}
+                    <option value="{{ t.term_id }}" {% if selected_term and selected_term.term_id == t.term_id %}selected{% endif %}>
+                        {{ t.term_name }} {% if t.is_locked %}(Locked){% endif %}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div>
+                <button type="submit" class="btn btn-primary" style="font-weight: 600; height: 42px; width: 100%;">
+                    Load Roster Grid
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Active Evaluation Parameters & Status -->
+    {% if selected_class and selected_subject and selected_term %}
+        {% if not mapping %}
+        <div class="alert alert-warning" style="margin-bottom: 2rem;">
+            <div class="alert-content">
+                <strong>Curriculum Unmapped:</strong> Subject <code>{{ selected_subject.subject_code }}</code> is not associated with {{ selected_class.display_name }}. Please map it in <a href="{{ url_for('academic.curriculum') }}" style="color: var(--color-primary); text-decoration: underline;">Curriculum Mapping</a> before recording marks.
+            </div>
+        </div>
+        {% else %}
+        
+        <!-- Evaluation Metric Banner -->
+        <div style="display: flex; gap: 1rem; margin-bottom: 1.5rem; flex-wrap: wrap; align-items: center; justify-content: space-between; background: var(--bg-card); padding: 1.25rem 1.5rem; border-radius: var(--radius-lg); border: 1px solid var(--border-color);">
+            <div style="display: flex; gap: 1.5rem; align-items: center; flex-wrap: wrap;">
+                <div>
+                    <span style="font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); font-weight: 700; display: block;">Internal Max</span>
+                    <span style="font-family: var(--font-mono); font-weight: 700; font-size: 1.1rem; color: var(--color-primary);">{{ mapping.max_internal_marks }} Marks</span>
+                </div>
+                <div style="border-left: 1px solid var(--border-color); padding-left: 1.5rem;">
+                    <span style="font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); font-weight: 700; display: block;">External / TEE Max</span>
+                    <span style="font-family: var(--font-mono); font-weight: 700; font-size: 1.1rem; color: var(--color-accent);">{{ mapping.max_external_marks }} Marks</span>
+                </div>
+                <div style="border-left: 1px solid var(--border-color); padding-left: 1.5rem;">
+                    <span style="font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); font-weight: 700; display: block;">Max Total Marks</span>
+                    <span style="font-family: var(--font-mono); font-weight: 700; font-size: 1.1rem; color: var(--text-main);">{{ mapping.max_total_marks }} Marks</span>
+                </div>
+                <div style="border-left: 1px solid var(--border-color); padding-left: 1.5rem;">
+                    <span style="font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); font-weight: 700; display: block;">Passing Cutoff</span>
+                    <span style="font-family: var(--font-mono); font-weight: 700; font-size: 1.1rem; color: var(--color-success);">{{ mapping.pass_marks }} Aggregate</span>
+                </div>
+            </div>
+
+            <div>
+                {% if selected_term.is_locked %}
+                <span class="badge badge-danger" style="padding: 6px 12px; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 6px;">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                        <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                    </svg>
+                    Cycle Locked (Read-Only)
+                </span>
+                {% else %}
+                <span class="badge badge-success" style="padding: 6px 12px; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 6px;">
+                    <span style="font-size: 0.5rem;">●</span> Active Evaluation Mode
+                </span>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Student Score Entry Form & Grid -->
+        <form method="POST" action="{{ url_for('marks.entry') }}" id="marksEntryForm">
+            <input type="hidden" name="class_id" value="{{ selected_class.class_id }}">
+            <input type="hidden" name="subject_id" value="{{ selected_subject.subject_id }}">
+            <input type="hidden" name="term_id" value="{{ selected_term.term_id }}">
+
+            <div class="card" style="padding: 0; overflow: hidden; margin-bottom: 2rem;">
+                <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--border-color);">
+                    <div>
+                        <h2 style="font-size: 1.1rem; font-weight: 700; margin: 0;">
+                            Enrolled Student Score Registry &mdash; {{ selected_class.display_name }}
+                        </h2>
+                        <span style="font-size: 0.8rem; color: var(--text-muted);">
+                            {{ student_rows|length }} Candidate(s) registered for examination
+                        </span>
+                    </div>
+                    {% if not selected_term.is_locked %}
+                    <button type="submit" class="btn btn-primary" style="font-weight: 700; gap: 0.5rem;">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+                            <polyline points="17 21 17 13 7 13 7 21"/>
+                            <polyline points="7 3 7 8 15 8"/>
+                        </svg>
+                        Save Evaluation Scores
+                    </button>
+                    {% endif %}
+                </div>
+
+                {% if student_rows %}
+                <div class="table-responsive">
+                    <table class="table" style="width: 100%; border-collapse: collapse;">
+                        <thead>
+                            <tr style="text-align: left; color: var(--text-muted); font-size: 0.8rem; text-transform: uppercase; background: var(--bg-hover); border-bottom: 1px solid var(--border-color);">
+                                <th style="padding: 0.9rem 1.5rem;">Enrollment No</th>
+                                <th style="padding: 0.9rem 1rem;">Candidate Name</th>
+                                <th style="padding: 0.9rem 1rem; width: 140px;">Internal (Max {{ mapping.max_internal_marks }})</th>
+                                <th style="padding: 0.9rem 1rem; width: 140px;">External (Max {{ mapping.max_external_marks }})</th>
+                                <th style="padding: 0.9rem 1rem; text-align: center; width: 90px;">Absent</th>
+                                <th style="padding: 0.9rem 1rem; text-align: center; width: 90px;">Total</th>
+                                <th style="padding: 0.9rem 1rem; text-align: center; width: 100px;">Percentage</th>
+                                <th style="padding: 0.9rem 1rem; text-align: center; width: 80px;">Grade</th>
+                                <th style="padding: 0.9rem 1.5rem; text-align: right; width: 100px;">Outcome</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in student_rows %}
+                            {% set st = item.student %}
+                            {% set mk = item.mark %}
+                            <tr class="score-row" data-student-id="{{ st.student_id }}" style="border-bottom: 1px solid var(--border-color);">
+                                <input type="hidden" name="student_ids" value="{{ st.student_id }}">
+                                
+                                <td style="padding: 0.85rem 1.5rem; font-family: var(--font-mono); font-weight: 700; color: var(--color-primary);">
+                                    {{ st.enrollment_no }}
+                                </td>
+                                <td style="padding: 0.85rem 1rem; font-weight: 600;">
+                                    {{ st.full_name }}
+                                </td>
+                                
+                                <!-- Internal Score Input -->
+                                <td style="padding: 0.85rem 1rem;">
+                                    <input 
+                                        type="number" 
+                                        step="0.5" 
+                                        min="0" 
+                                        max="{{ mapping.max_internal_marks }}" 
+                                        name="internal_{{ st.student_id }}" 
+                                        class="form-control internal-input" 
+                                        value="{{ mk.internal_marks if mk else '' }}" 
+                                        placeholder="0.0"
+                                        style="font-family: var(--font-mono); padding: 0.4rem 0.6rem; font-size: 0.9rem;"
+                                        {% if selected_term.is_locked or (mk and mk.is_absent) %}disabled{% endif %}
+                                    >
+                                </td>
+
+                                <!-- External Score Input -->
+                                <td style="padding: 0.85rem 1rem;">
+                                    <input 
+                                        type="number" 
+                                        step="0.5" 
+                                        min="0" 
+                                        max="{{ mapping.max_external_marks }}" 
+                                        name="external_{{ st.student_id }}" 
+                                        class="form-control external-input" 
+                                        value="{{ mk.external_marks if mk else '' }}" 
+                                        placeholder="0.0"
+                                        style="font-family: var(--font-mono); padding: 0.4rem 0.6rem; font-size: 0.9rem;"
+                                        {% if selected_term.is_locked or (mk and mk.is_absent) %}disabled{% endif %}
+                                    >
+                                </td>
+
+                                <!-- Absent Checkbox -->
+                                <td style="padding: 0.85rem 1rem; text-align: center;">
+                                    <input 
+                                        type="checkbox" 
+                                        name="absent_{{ st.student_id }}" 
+                                        value="1" 
+                                        class="absent-checkbox"
+                                        {% if mk and mk.is_absent %}checked{% endif %}
+                                        {% if selected_term.is_locked %}disabled{% endif %}
+                                        style="width: 18px; height: 18px; cursor: pointer;"
+                                        title="Mark candidate as absent"
+                                    >
+                                </td>
+
+                                <!-- Calculated Total -->
+                                <td style="padding: 0.85rem 1rem; text-align: center; font-family: var(--font-mono); font-weight: 700;" class="total-display">
+                                    {{ mk.total_marks if mk else '—' }}
+                                </td>
+
+                                <!-- Calculated Percentage -->
+                                <td style="padding: 0.85rem 1rem; text-align: center; font-family: var(--font-mono);" class="pct-display">
+                                    {{ mk.percentage ~ '%' if mk else '—' }}
+                                </td>
+
+                                <!-- Grade Pill -->
+                                <td style="padding: 0.85rem 1rem; text-align: center;" class="grade-display">
+                                    {% if mk %}
+                                        {% if mk.grade == 'F' %}
+                                        <span class="badge badge-danger">{{ mk.grade }}</span>
+                                        {% elif mk.grade in ['O', 'A+'] %}
+                                        <span class="badge badge-success">{{ mk.grade }}</span>
+                                        {% else %}
+                                        <span class="badge badge-primary">{{ mk.grade }}</span>
+                                        {% endif %}
+                                    {% else %}
+                                        <span class="badge badge-neutral">—</span>
+                                    {% endif %}
+                                </td>
+
+                                <!-- Outcome Status -->
+                                <td style="padding: 0.85rem 1.5rem; text-align: right;" class="status-display">
+                                    {% if mk %}
+                                        {% if mk.is_absent %}
+                                        <span class="badge badge-warning">Absent</span>
+                                        {% elif mk.is_passed %}
+                                        <span class="badge badge-success">Passed</span>
+                                        {% else %}
+                                        <span class="badge badge-danger">Failed</span>
+                                        {% endif %}
+                                    {% else %}
+                                        <span class="badge badge-neutral">Pending</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Bottom Action Bar -->
+                {% if not selected_term.is_locked %}
+                <div style="padding: 1.25rem 1.5rem; background: var(--bg-hover); border-top: 1px solid var(--border-color); display: flex; justify-content: flex-end; align-items: center; gap: 1rem;">
+                    <span style="font-size: 0.85rem; color: var(--text-muted);">
+                        Ensure all candidate scores comply with component maximum marks before saving.
+                    </span>
+                    <button type="submit" class="btn btn-primary" style="font-weight: 700; min-width: 180px; gap: 0.5rem;">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+                            <polyline points="17 21 17 13 7 13 7 21"/>
+                            <polyline points="7 3 7 8 15 8"/>
+                        </svg>
+                        Save Evaluation Scores
+                    </button>
+                </div>
+                {% endif %}
+
+                {% else %}
+                <div style="padding: 3rem; text-align: center; color: var(--text-muted);">
+                    <p>No candidates are currently enrolled in {{ selected_class.display_name }}.</p>
+                    <a href="{{ url_for('student.create_student') }}" class="btn btn-secondary btn-sm">Enroll Students</a>
+                </div>
+                {% endif %}
+            </div>
+        </form>
+
+        {% endif %}
+    {% else %}
+    <!-- Initial Prompt to Select Parameters -->
+    <div class="card" style="padding: 3.5rem 1.5rem; text-align: center; color: var(--text-muted);">
+        <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin: 0 auto 1.25rem; opacity: 0.4;">
+            <path d="M12 20h9"/>
+            <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
+        </svg>
+        <h2 style="font-size: 1.25rem; font-weight: 700; color: var(--text-main); margin-bottom: 0.5rem;">
+            Select Cohort, Course Subject, and Exam Term
+        </h2>
+        <p style="font-size: 0.95rem; max-width: 520px; margin: 0 auto;">
+            Choose an academic class, registered curriculum course, and examination cycle in the filter panel above to load the live student evaluation grid.
+        </p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const maxTotal = {{ mapping.max_total_marks if mapping else 100.0 }};
+    const passMarks = {{ mapping.pass_marks if mapping else 40.0 }};
+
+    function calculateGrade(percentage) {
+        if (percentage >= 85.0) return { grade: 'O', point: 10.0, badge: 'badge-success' };
+        if (percentage >= 75.0) return { grade: 'A+', point: 9.0, badge: 'badge-success' };
+        if (percentage >= 65.0) return { grade: 'A', point: 8.0, badge: 'badge-primary' };
+        if (percentage >= 55.0) return { grade: 'B+', point: 7.0, badge: 'badge-primary' };
+        if (percentage >= 50.0) return { grade: 'B', point: 6.0, badge: 'badge-primary' };
+        if (percentage >= 40.0) return { grade: 'C', point: 5.0, badge: 'badge-accent' };
+        return { grade: 'F', point: 0.0, badge: 'badge-danger' };
+    }
+
+    document.querySelectorAll('.score-row').forEach(row => {
+        const intInput = row.querySelector('.internal-input');
+        const extInput = row.querySelector('.external-input');
+        const absCheckbox = row.querySelector('.absent-checkbox');
+        const totalDisp = row.querySelector('.total-display');
+        const pctDisp = row.querySelector('.pct-display');
+        const gradeDisp = row.querySelector('.grade-display');
+        const statusDisp = row.querySelector('.status-display');
+
+        function updateRow() {
+            if (absCheckbox && absCheckbox.checked) {
+                intInput.disabled = true;
+                extInput.disabled = true;
+                intInput.value = '0.0';
+                extInput.value = '0.0';
+                totalDisp.textContent = '0.0';
+                pctDisp.textContent = '0.0%';
+                gradeDisp.innerHTML = '<span class="badge badge-danger">F</span>';
+                statusDisp.innerHTML = '<span class="badge badge-warning">Absent</span>';
+                return;
+            } else {
+                intInput.disabled = false;
+                extInput.disabled = false;
+            }
+
+            const inVal = parseFloat(intInput.value) || 0;
+            const exVal = parseFloat(extInput.value) || 0;
+
+            if (intInput.value === '' && extInput.value === '') {
+                totalDisp.textContent = '—';
+                pctDisp.textContent = '—';
+                gradeDisp.innerHTML = '<span class="badge badge-neutral">—</span>';
+                statusDisp.innerHTML = '<span class="badge badge-neutral">Pending</span>';
+                return;
+            }
+
+            const total = Math.round((inVal + exVal) * 100) / 100;
+            const pct = maxTotal > 0 ? Math.round((total / maxTotal) * 10000) / 100 : 0;
+            const isPassed = total >= passMarks;
+            const gInfo = isPassed ? calculateGrade(pct) : { grade: 'F', badge: 'badge-danger' };
+
+            totalDisp.textContent = total.toFixed(1);
+            pctDisp.textContent = pct.toFixed(1) + '%';
+            gradeDisp.innerHTML = `<span class="badge ${gInfo.badge}">${gInfo.grade}</span>`;
+
+            if (isPassed) {
+                statusDisp.innerHTML = '<span class="badge badge-success">Passed</span>';
+            } else {
+                statusDisp.innerHTML = '<span class="badge badge-danger">Failed</span>';
+            }
+        }
+
+        if (intInput) intInput.addEventListener('input', updateRow);
+        if (extInput) extInput.addEventListener('input', updateRow);
+        if (absCheckbox) absCheckbox.addEventListener('change', updateRow);
+    });
+});
+</script>
+{% endblock %}
