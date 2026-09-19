@@ -116,7 +116,7 @@
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="#" class="nav-link">
+                    <a href="{{ url_for('reports.report_cards') }}" class="nav-link {% if request.endpoint in ['reports.report_cards', 'reports.report_card_preview'] %}active{% endif %}">
                         <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                             <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
                             <polyline points="14 2 14 8 20 8"/>
@@ -125,11 +125,10 @@
                             <polyline points="10 9 9 9 8 9"/>
                         </svg>
                         <span class="nav-text">Report Cards (PDF)</span>
-                        <span class="nav-tag">Phase 6</span>
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="#" class="nav-link">
+                    <a href="{{ url_for('reports.tabulation_register') }}" class="nav-link {% if request.endpoint == 'reports.tabulation_register' %}active{% endif %}">
                         <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                             <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
                             <line x1="3" y1="9" x2="21" y2="9"/>
@@ -138,7 +137,14 @@
                             <line x1="15" y1="3" x2="15" y2="21"/>
                         </svg>
                         <span class="nav-text">Tabulation Register</span>
-                        <span class="nav-tag">Phase 6</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ url_for('reports.class_summary') }}" class="nav-link {% if request.endpoint == 'reports.class_summary' %}active{% endif %}">
+                        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+                        </svg>
+                        <span class="nav-text">Executive Summary</span>
                     </a>
                 </li>
             </nav>

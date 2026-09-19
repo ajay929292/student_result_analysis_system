@@ -202,29 +202,29 @@ gantt
 ### Phase 5: Statistical Analytics Engine & Interactive Dashboards
 > **Goal:** Leverage Pandas and Chart.js to generate data-driven insights, academic trends, and early warning notifications.
 
-* [ ] **Milestone 5.1: Pandas Statistical Analytics Service**
+* [x] **Milestone 5.1: Pandas Statistical Analytics Service**
   * Implement `app/services/analytics_service.py` with vectorised computations:
     * **Descriptive Metrics:** Class average (mean), median score, standard deviation, highest score, lowest score.
     * **Pass/Fail Metrics:** Total appeared, total passed, total failed, pass percentage.
     * **Grade Distribution:** Count and percentage of students across each grade bracket (O, A+, A, etc.).
     * **Subject Comparison:** Average score and pass percentage per subject in a class to identify challenging subjects.
 
-* [ ] **Milestone 5.2: At-Risk Student Identification Algorithm**
+* [x] **Milestone 5.2: At-Risk Student Identification Algorithm**
   * Query filter identifying:
     * Students failing in one or more subjects.
     * Students scoring within borderline range (40% - 45%).
     * Significant negative score drops compared to previous terms.
   * Dedicated "Academic Alert List" view for educators to target remedial support.
 
-* [ ] **Milestone 5.3: REST API for Analytical Data**
+* [x] **Milestone 5.3: REST API for Analytical Data**
   * Endpoints in `app/routes/analytics_routes.py`:
     * `GET /api/analytics/overview?class_id=X&term_id=Y`
     * `GET /api/analytics/grade-distribution?class_id=X&term_id=Y`
     * `GET /api/analytics/subject-comparison?class_id=X&term_id=Y`
     * `GET /api/analytics/at-risk?class_id=X&term_id=Y`
 
-* [ ] **Milestone 5.4: Front-End Analytics Dashboard**
-  * Build visual dashboard (`app/templates/analytics/view.html`):
+* [x] **Milestone 5.4: Front-End Analytics Dashboard**
+  * Build visual dashboard (`app/templates/analytics/dashboard.html`):
     * KPI summary cards (Class Average, Pass Rate, Top Score, At-Risk Count).
     * **Bar Chart:** Grade distribution frequency.
     * **Radar / Horizontal Bar Chart:** Cross-subject average score comparison.
@@ -240,7 +240,7 @@ gantt
 ### Phase 6: Reporting, Document Generation & Export Services
 > **Goal:** Provide institutional-grade report cards (PDF) and comprehensive tabular result registers (Excel).
 
-* [ ] **Milestone 6.1: Individual Student Report Card (PDF Generation)**
+* [x] **Milestone 6.1: Individual Student Report Card (PDF Generation)**
   * Report generation service (`app/services/report_service.py`) using ReportLab / HTML-to-PDF:
     * Institutional header and logo.
     * Student metadata (Enrollment No, Name, Program, Semester, Exam Term).
@@ -248,13 +248,13 @@ gantt
     * Summary footer (Total Marks, Percentage, CGPA, Result Status, Date, Signature placeholder).
   * Direct browser preview and one-click PDF download.
 
-* [ ] **Milestone 6.2: Master Tabulation Register (TR Sheet - Excel Export)**
+* [x] **Milestone 6.2: Master Tabulation Register (TR Sheet - Excel Export)**
   * Use `openpyxl` to build comprehensive multi-column Excel registers:
     * Columns for each subject subdivided into Internal, External, and Total.
     * Grand Total, Overall Percentage, Final Grade, and Result (Pass/Fail).
     * Styled headers, alternating row colors, and auto-fitted column widths.
 
-* [ ] **Milestone 6.3: Executive Class Performance Summary Report**
+* [x] **Milestone 6.3: Executive Class Performance Summary Report**
   * Printable summary report for Faculty / Head of Department containing:
     * Class overview metrics.
     * Subject-wise pass percentages.
@@ -269,18 +269,18 @@ gantt
 ### Phase 7: Quality Assurance, Testing & Security Hardening
 > **Goal:** Ensure calculations are mathematically infallible, edge cases are guarded, and application security meets standards.
 
-* [ ] **Milestone 7.1: Automated Unit & Integration Tests (PyTest)**
+* [x] **Milestone 7.1: Automated Unit & Integration Tests (PyTest)**
   * Write test suites in `tests/`:
     * `test_grading.py`: Test total summation, boundary conditions (0, 39, 40, 100), absent cases, and grade boundary mappings.
     * `test_ingestion.py`: Test parsing valid CSV/Excel files, handling missing columns, rejecting out-of-bound marks, and file rollback.
     * `test_analytics.py`: Verify accurate Pandas calculations for mean, standard deviation, and grade counts against pre-computed datasets.
     * `test_auth.py`: Verify password hashing, login sessions, and RBAC route protections.
 
-* [ ] **Milestone 7.2: Edge-Case & Stress Validation**
+* [x] **Milestone 7.2: Edge-Case & Stress Validation**
   * Test with batches of 500+ students to ensure sub-second response times.
   * Handle edge cases: all students absent, all students failing, 100% pass rate, fractional marks (e.g., 34.5 rounded or preserved).
 
-* [ ] **Milestone 7.3: Security Hardening**
+* [x] **Milestone 7.3: Security Hardening**
   * SQL Injection protection via SQLAlchemy parameterization.
   * Cross-Site Scripting (XSS) prevention via Jinja2 auto-escaping.
   * Cross-Site Request Forgery (CSRF) protection on all form submissions.
@@ -295,16 +295,16 @@ gantt
 ### Phase 8: Deployment Configuration & IGNOU Documentation
 > **Goal:** Package the application for easy execution and finalize all academic project documentation.
 
-* [ ] **Milestone 8.1: Deployment & Local Execution Setup**
+* [x] **Milestone 8.1: Deployment & Local Execution Setup**
   * Create one-command runner script (`start.bat` for Windows and `start.sh` for Linux/macOS).
   * Configure environment variable template (`.env.example`).
   * Ensure smooth database initialization (`flask db upgrade` or automatic table creation).
 
-* [ ] **Milestone 8.2: User Manual & Documentation**
+* [x] **Milestone 8.2: User Manual & Documentation**
   * Write comprehensive `README.md` with installation steps, dependency installation, and demo credentials.
   * Write `Docs/user_manual.md` with step-by-step guides for Teachers and Administrators (screenshots and sample workflows).
 
-* [ ] **Milestone 8.3: Academic Project Deliverables Alignment**
+* [x] **Milestone 8.3: Academic Project Deliverables Alignment**
   * Verify full alignment with IGNOU Project Guidelines (BCSP-064 / MCSP-232):
     * Complete Data Flow Diagrams (DFD Level 0, Level 1, Level 2).
     * Entity-Relationship (ER) Diagram matching implementation.

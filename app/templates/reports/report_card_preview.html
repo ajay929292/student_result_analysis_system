@@ -1,0 +1,420 @@
+{% extends "base.html" %}
+
+{% block title %}Official Grade Card - {{ data.full_name }} ({{ data.enrollment_no }}){% endblock %}
+
+{% block content %}
+<style>
+    /* Marksheet Display Styling (Screen View) */
+    .marksheet-wrapper {
+        max-width: 920px;
+        margin: 0 auto 3rem auto;
+    }
+
+    .marksheet-document {
+        background: #ffffff;
+        color: #0f172a;
+        border-radius: 8px;
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3), 0 8px 10px -6px rgba(0, 0, 0, 0.3);
+        border: 2px solid #cbd5e1;
+        padding: 3rem;
+        font-family: var(--font-sans);
+        position: relative;
+    }
+
+    .univ-header-title {
+        color: #1e3a8a;
+        font-size: 1.6rem;
+        font-weight: 800;
+        letter-spacing: 0.5px;
+        margin: 0 0 0.25rem 0;
+        text-align: center;
+        text-transform: uppercase;
+    }
+
+    .univ-header-sub {
+        color: #475569;
+        font-size: 0.85rem;
+        text-align: center;
+        margin: 0 0 0.75rem 0;
+    }
+
+    .marksheet-badge {
+        background: #f1f5f9;
+        color: #1e3a8a;
+        border: 1px solid #cbd5e1;
+        padding: 0.4rem 1.25rem;
+        border-radius: 20px;
+        font-weight: 700;
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        display: inline-block;
+        margin: 0.5rem auto 1.25rem auto;
+        letter-spacing: 0.5px;
+    }
+
+    .meta-box {
+        background: #f8fafc;
+        border: 1px solid #cbd5e1;
+        border-radius: 6px;
+        padding: 1rem 1.25rem;
+        margin-bottom: 1.5rem;
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.75rem 1.5rem;
+        font-size: 0.9rem;
+    }
+
+    .meta-item {
+        display: flex;
+        align-items: baseline;
+    }
+
+    .meta-label {
+        font-weight: 700;
+        color: #475569;
+        width: 140px;
+        flex-shrink: 0;
+        font-size: 0.85rem;
+    }
+
+    .meta-val {
+        color: #0f172a;
+        font-weight: 600;
+    }
+
+    .eval-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 1.5rem;
+        font-size: 0.85rem;
+    }
+
+    .eval-table th {
+        background: #1e3a8a;
+        color: #ffffff;
+        padding: 0.65rem 0.5rem;
+        font-weight: 700;
+        text-align: center;
+        border: 1px solid #1e3a8a;
+    }
+
+    .eval-table td {
+        padding: 0.55rem 0.5rem;
+        border: 1px solid #cbd5e1;
+        color: #1e293b;
+    }
+
+    .eval-table tr:nth-child(even) td {
+        background: #f8fafc;
+    }
+
+    .eval-table tr.total-row td {
+        background: #e2e8f0;
+        font-weight: 700;
+        border-top: 2px solid #64748b;
+    }
+
+    .summary-card {
+        background: #f1f5f9;
+        border: 1.5px solid #94a3b8;
+        border-radius: 6px;
+        padding: 1rem 1.25rem;
+        margin-bottom: 2.5rem;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+    }
+
+    .summary-kpi-label {
+        font-size: 0.8rem;
+        color: #475569;
+        font-weight: 600;
+        text-transform: uppercase;
+        margin-bottom: 0.2rem;
+    }
+
+    .summary-kpi-val {
+        font-size: 1.15rem;
+        font-weight: 800;
+        color: #0f172a;
+    }
+
+    .signatures-block {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 3rem;
+        padding-top: 1rem;
+    }
+
+    .sig-col {
+        text-align: center;
+        width: 240px;
+    }
+
+    .sig-line {
+        border-top: 1.5px solid #475569;
+        margin-bottom: 0.35rem;
+    }
+
+    .sig-title {
+        font-weight: 700;
+        font-size: 0.85rem;
+        color: #0f172a;
+    }
+
+    .sig-sub {
+        font-size: 0.75rem;
+        color: #64748b;
+    }
+
+    /* Print Specific Styles */
+    @media print {
+        body {
+            background: #ffffff !important;
+            color: #000000 !important;
+        }
+
+        .sidebar, .top-header, .preview-toolbar, .site-footer {
+            display: none !important;
+        }
+
+        .app-layout {
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+
+        .main-content {
+            padding: 0 !important;
+            margin: 0 !important;
+        }
+
+        .marksheet-wrapper {
+            max-width: 100% !important;
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+
+        .marksheet-document {
+            box-shadow: none !important;
+            border: 1px solid #000000 !important;
+            padding: 1.5cm !important;
+            margin: 0 !important;
+        }
+
+        .eval-table th {
+            background-color: #1e3a8a !important;
+            color: #ffffff !important;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+
+        .eval-table tr:nth-child(even) td {
+            background-color: #f8fafc !important;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+
+        .summary-card {
+            background-color: #f1f5f9 !important;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+    }
+</style>
+
+<div class="page-container">
+    <!-- Top Action Toolbar (Excluded in print) -->
+    <div class="preview-toolbar" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+        <div style="display: flex; align-items: center; gap: 0.75rem;">
+            <a href="{{ url_for('reports.report_cards', class_id=data.class_id, term_id=data.term_id) }}" class="btn btn-secondary" style="gap: 0.4rem;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="19" y1="12" x2="5" y2="12"/>
+                    <polyline points="12 19 5 12 12 5"/>
+                </svg>
+                Back to Cohort Roster
+            </a>
+
+            <!-- Term Switcher -->
+            <form method="GET" action="{{ url_for('reports.report_card_preview', student_id=data.student_id) }}" style="margin: 0; display: inline-flex; align-items: center; gap: 0.5rem;">
+                <select name="term_id" class="form-control" onchange="this.form.submit()" style="padding: 0.4rem 0.75rem; font-size: 0.85rem; height: 38px;">
+                    {% for t in terms %}
+                    <option value="{{ t.term_id }}" {% if t.term_id == selected_term_id %}selected{% endif %}>
+                        {{ t.term_name }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </form>
+        </div>
+
+        <div style="display: flex; gap: 0.75rem; align-items: center;">
+            <button onclick="window.print()" class="btn btn-secondary" style="gap: 0.5rem; font-weight: 600;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="6 9 6 2 18 2 18 9"/>
+                    <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/>
+                    <rect x="6" y="14" width="12" height="8"/>
+                </svg>
+                Print Marksheet
+            </button>
+            <a href="{{ url_for('reports.download_report_card_pdf', student_id=data.student_id, term_id=data.term_id, download=1) }}" class="btn btn-primary" style="gap: 0.5rem; font-weight: 700;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                    <polyline points="7 10 12 15 17 10"/>
+                    <line x1="12" y1="15" x2="12" y2="3"/>
+                </svg>
+                Download Official PDF
+            </a>
+        </div>
+    </div>
+
+    <!-- Printable Official Grade Card Document -->
+    <div class="marksheet-wrapper">
+        <div class="marksheet-document" id="printable-marksheet">
+            <!-- Header -->
+            <div style="text-align: center; margin-bottom: 1.25rem;">
+                <h1 class="univ-header-title">Indira Gandhi National Open University</h1>
+                <p class="univ-header-sub">Maidan Garhi, New Delhi - 110068 | School of Computer and Information Sciences</p>
+                <div style="width: 100%; height: 2px; background: #1e3a8a; margin: 0 auto 0.75rem auto;"></div>
+                <div class="marksheet-badge">Official Grade Card & Statement of Marks</div>
+            </div>
+
+            <!-- Student Demographics Box -->
+            <div class="meta-box">
+                <div class="meta-item">
+                    <span class="meta-label">Enrollment Number:</span>
+                    <span class="meta-val" style="font-family: var(--font-mono); color: #1e3a8a; font-size: 0.95rem;">{{ data.enrollment_no }}</span>
+                </div>
+                <div class="meta-item">
+                    <span class="meta-label">Academic Year:</span>
+                    <span class="meta-val">{{ data.academic_year }}</span>
+                </div>
+                <div class="meta-item">
+                    <span class="meta-label">Candidate Name:</span>
+                    <span class="meta-val" style="font-size: 0.95rem;">{{ data.full_name }}</span>
+                </div>
+                <div class="meta-item">
+                    <span class="meta-label">Examination Cycle:</span>
+                    <span class="meta-val">{{ data.term_name }}</span>
+                </div>
+                <div class="meta-item">
+                    <span class="meta-label">Program & Class:</span>
+                    <span class="meta-val">{{ data.display_class }}</span>
+                </div>
+                <div class="meta-item">
+                    <span class="meta-label">Date of Declaration:</span>
+                    <span class="meta-val">{{ data.issue_date }}</span>
+                </div>
+            </div>
+
+            <!-- Course Evaluation Table -->
+            <table class="eval-table">
+                <thead>
+                    <tr>
+                        <th style="width: 85px;">Code</th>
+                        <th style="text-align: left; padding-left: 0.75rem;">Course Title</th>
+                        <th style="width: 35px;">Cr</th>
+                        <th style="width: 55px;">Int<br/><small style="font-weight: normal;">(Max)</small></th>
+                        <th style="width: 55px;">Int<br/><small style="font-weight: normal;">Scored</small></th>
+                        <th style="width: 55px;">Ext<br/><small style="font-weight: normal;">(Max)</small></th>
+                        <th style="width: 55px;">Ext<br/><small style="font-weight: normal;">Scored</small></th>
+                        <th style="width: 60px;">Total<br/><small style="font-weight: normal;">(Max)</small></th>
+                        <th style="width: 60px;">Total<br/><small style="font-weight: normal;">Scored</small></th>
+                        <th style="width: 45px;">Grd</th>
+                        <th style="width: 45px;">GP</th>
+                        <th style="width: 65px;">Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for s in data.subjects %}
+                    <tr>
+                        <td style="text-align: center; font-family: var(--font-mono); font-weight: 700;">{{ s.subject_code }}</td>
+                        <td style="text-align: left; padding-left: 0.75rem; font-weight: 500;">{{ s.subject_name }}</td>
+                        <td style="text-align: center;">{{ s.credits }}</td>
+                        <td style="text-align: center;">{{ s.max_internal|int }}</td>
+                        <td style="text-align: center; font-family: var(--font-mono);">{{ s.internal_marks }}</td>
+                        <td style="text-align: center;">{{ s.max_external|int }}</td>
+                        <td style="text-align: center; font-family: var(--font-mono);">{{ s.external_marks }}</td>
+                        <td style="text-align: center;">{{ s.max_total|int }}</td>
+                        <td style="text-align: center; font-family: var(--font-mono); font-weight: 700;">{{ s.total_marks }}</td>
+                        <td style="text-align: center; font-weight: 800; color: #1e3a8a;">{{ s.grade }}</td>
+                        <td style="text-align: center; font-family: var(--font-mono);">{{ s.grade_point }}</td>
+                        <td style="text-align: center;">
+                            {% if s.status == 'PASS' %}
+                            <span style="color: #15803d; font-weight: 700;">PASS</span>
+                            {% elif s.status == 'FAIL' %}
+                            <span style="color: #b91c1c; font-weight: 700;">FAIL</span>
+                            {% elif s.status == 'ABSENT' %}
+                            <span style="color: #d97706; font-weight: 700;">ABSENT</span>
+                            {% else %}
+                            <span style="color: #64748b; font-weight: 600;">PENDING</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+
+                    <!-- Total Row -->
+                    <tr class="total-row">
+                        <td colspan="2" style="text-align: left; padding-left: 0.75rem;">GRAND TOTAL ({{ data.subjects|length }} Courses)</td>
+                        <td style="text-align: center;">{{ data.total_credits }}</td>
+                        <td colspan="4" style="text-align: center; color: #64748b;">-</td>
+                        <td style="text-align: center;">{{ data.total_max_marks|int }}</td>
+                        <td style="text-align: center; font-family: var(--font-mono);">{{ "%.1f"|format(data.total_obtained_marks) }}</td>
+                        <td colspan="2" style="text-align: center; color: #64748b;">-</td>
+                        <td style="text-align: center; font-weight: 800;">{{ data.overall_result.split()[0] }}</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <!-- Summary KPI Box -->
+            <div class="summary-card">
+                <div>
+                    <div class="summary-kpi-label">Total Marks Secured</div>
+                    <div class="summary-kpi-val">{{ "%.1f"|format(data.total_obtained_marks) }} <span style="font-size: 0.85rem; color: #64748b; font-weight: normal;">/ {{ data.total_max_marks|int }}</span></div>
+                </div>
+                <div>
+                    <div class="summary-kpi-label">Overall Percentage</div>
+                    <div class="summary-kpi-val" style="color: #1e3a8a;">{{ "%.2f"|format(data.overall_percentage) }}%</div>
+                </div>
+                <div>
+                    <div class="summary-kpi-label">Semester GPA (SGPA)</div>
+                    <div class="summary-kpi-val">{{ "%.2f"|format(data.cgpa) }} <span style="font-size: 0.85rem; color: #64748b; font-weight: normal;">/ 10.00</span></div>
+                </div>
+                <div>
+                    <div class="summary-kpi-label">Class Merit Rank</div>
+                    <div class="summary-kpi-val">{% if data.class_rank %}Rank #{{ data.class_rank }}{% else %}N/A{% endif %}</div>
+                </div>
+                <div style="grid-column: 1 / -1; border-top: 1px solid #cbd5e1; padding-top: 0.75rem; margin-top: 0.25rem; display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <span class="summary-kpi-label" style="display: inline-block; margin-right: 0.5rem;">Final Result:</span>
+                        {% if not data.has_fail and data.overall_result != 'ABSENT' %}
+                        <strong style="color: #15803d; font-size: 1.05rem;">{{ data.overall_result }}</strong>
+                        {% else %}
+                        <strong style="color: #b91c1c; font-size: 1.05rem;">{{ data.overall_result }}</strong>
+                        {% endif %}
+                    </div>
+                    <div style="font-size: 0.8rem; color: #64748b;">
+                        Grading Standard: <strong>IGNOU 10-Point Scale</strong>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Signatures Section -->
+            <div class="signatures-block">
+                <div class="sig-col">
+                    <div class="sig-line"></div>
+                    <div class="sig-title">Verified by (Evaluator)</div>
+                    <div class="sig-sub">Examination Committee In-Charge</div>
+                </div>
+                <div class="sig-col">
+                    <div class="sig-line"></div>
+                    <div class="sig-title">Controller of Examinations</div>
+                    <div class="sig-sub">Indira Gandhi National Open University</div>
+                </div>
+            </div>
+
+            <div style="margin-top: 2rem; text-align: center; font-size: 0.75rem; color: #94a3b8; border-top: 1px dashed #e2e8f0; padding-top: 0.75rem;">
+                This document is a certified computer-generated grade card issued by the Student Result Analysis System (SRAS).
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
