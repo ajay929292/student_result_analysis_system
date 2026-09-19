@@ -37,21 +37,28 @@ def seed_database():
         users_data = [
             {
                 'username': 'admin',
-                'password': 'Admin@12345',
+                'password': 'Admin@123',
                 'role': User.ROLE_ADMIN,
                 'full_name': 'System Administrator',
                 'email': 'admin@ignou.ac.in'
             },
             {
-                'username': 'teacher1',
-                'password': 'Teacher@12345',
+                'username': 'teacher',
+                'password': 'Teacher@123',
                 'role': User.ROLE_TEACHER,
                 'full_name': 'Prof. Rajesh Kumar',
-                'email': 'rajesh.kumar@ignou.ac.in'
+                'email': 'teacher@ignou.ac.in'
+            },
+            {
+                'username': 'teacher1',
+                'password': 'Teacher@123',
+                'role': User.ROLE_TEACHER,
+                'full_name': 'Prof. Anita Verma',
+                'email': 'anita.verma@ignou.ac.in'
             },
             {
                 'username': 'student1',
-                'password': 'Student@12345',
+                'password': 'Student@123',
                 'role': User.ROLE_STUDENT,
                 'full_name': 'Rahul Sharma',
                 'email': 'rahul.sharma@ignou.ac.in'
@@ -73,8 +80,10 @@ def seed_database():
                 seeded_users[u['username']] = user
                 print(f"  + Created User: {u['username']} ({u['role']})")
             else:
+                existing.set_password(u['password'])
+                existing.is_active = True
                 seeded_users[u['username']] = existing
-                print(f"  * User exists: {u['username']}")
+                print(f"  * User updated: {u['username']}")
 
         db.session.commit()
 
