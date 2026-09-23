@@ -70,6 +70,7 @@
 | [`Docs/architecture_plan.md`](file:///c:/Users/AJAY%20SHARMA/OneDrive/Desktop/AI_PROJECTS/IGNOU_project/Docs/architecture_plan.md) | Documentation | Technical architecture specifications, 3-tier design details, and engineering diagrams. |
 | [`Docs/implementationplan.md`](file:///c:/Users/AJAY%20SHARMA/OneDrive/Desktop/AI_PROJECTS/IGNOU_project/Docs/implementationplan.md) | Documentation | Phased development milestone tracker documenting completed engineering tasks (Phases 0-6). |
 | [`Docs/problemstatement.md`](file:///c:/Users/AJAY%20SHARMA/OneDrive/Desktop/AI_PROJECTS/IGNOU_project/Docs/problemstatement.md) | Documentation | Background motivation and academic problem statement regarding manual tabulation flaws. |
+| [`Docs/code_addition_guide.md`](file:///c:/Users/AJAY%20SHARMA/OneDrive/Desktop/AI_PROJECTS/IGNOU_project/Docs/code_addition_guide.md) | Documentation | Step-by-step code addition guide with exact filenames, rationale (why), and copy-ready code. |
 | [`Docs/user_manual.md`](file:///c:/Users/AJAY%20SHARMA/OneDrive/Desktop/AI_PROJECTS/IGNOU_project/Docs/user_manual.md) | Documentation | Step-by-step user guide for Administrators, Teachers, and Students with troubleshooting tips. |
 | [`uploads/.gitkeep`](file:///c:/Users/AJAY%20SHARMA/OneDrive/Desktop/AI_PROJECTS/IGNOU_project/uploads/.gitkeep) | Repository Maintenance | Preserves the temporary upload directory in Git tracking. |
 

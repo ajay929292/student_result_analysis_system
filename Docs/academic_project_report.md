@@ -555,6 +555,7 @@ IGNOU_project/
 ├── Docs/
 │   ├── academic_project_report.md   # IGNOU standard academic documentation
 │   ├── architecture_plan.md         # System architectural blueprint
+│   ├── code_addition_guide.md       # Step-by-step code addition & copy reference
 │   ├── file_descriptions.md         # Codebase file reference & quick lookup table
 │   ├── implementationplan.md        # Phased development milestone tracker
 │   ├── problemstatement.md          # Academic problem definition & motivation

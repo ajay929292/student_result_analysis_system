@@ -179,6 +179,7 @@ IGNOU_project/
 ├── Docs/                             # Comprehensive project documentation
 │   ├── academic_project_report.md    # IGNOU Project Report (SRS, DFD 0/1/2, ER diagram)
 │   ├── architecture_plan.md          # 3-tier architectural blueprint
+│   ├── code_addition_guide.md        # Step-by-step code addition & copy reference
 │   ├── file_descriptions.md          # Codebase file reference & quick lookup table
 │   ├── implementationplan.md         # Detailed milestone completion tracker
 │   ├── problemstatement.md           # Academic problem definition
