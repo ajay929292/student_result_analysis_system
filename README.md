@@ -179,8 +179,10 @@ IGNOU_project/
 ├── Docs/                             # Comprehensive project documentation
 │   ├── academic_project_report.md    # IGNOU Project Report (SRS, DFD 0/1/2, ER diagram)
 │   ├── architecture_plan.md          # 3-tier architectural blueprint
+│   ├── file_descriptions.md          # Codebase file reference & quick lookup table
 │   ├── implementationplan.md         # Detailed milestone completion tracker
 │   ├── problemstatement.md           # Academic problem definition
+│   ├── project_files_description.md  # Comprehensive codebase architecture & file manifest
 │   └── user_manual.md                # Step-by-step user guide for faculty & admins
 │
 ├── instance/                         # Local database storage (student_results.db)
@@ -228,10 +230,11 @@ All **64 automated tests** pass with 100% success rate.
 ## 8. Academic Project Guidelines Alignment
 
 This application fulfills all specifications for the **IGNOU BCA (BCSP-064)** and **MCA (MCSP-232)** Project Guidelines:
-* Detailed Data Flow Diagrams: **Context Level 0, Level 1, and Level 2** in [Docs/academic_project_report.md](file:///c:/Users/AJAY%20SHARMA/OneDrive/Desktop/AI_PROJECTS/IGNOU_project/Docs/academic_project_report.md).
+* Detailed Data Flow Diagrams: **Context Level 0, Level 1, and Level 2** in [Docs/academic_project_report.md](Docs/academic_project_report.md).
 * Complete Entity-Relationship (ER) Crow's Foot Diagram.
 * Complete Relational Data Dictionary.
 * Documented Test Cases and Boundary Value Analyses.
+* Comprehensive Codebase Architecture & File Manifest: [Docs/project_files_description.md](Docs/project_files_description.md).
 
 ---
 

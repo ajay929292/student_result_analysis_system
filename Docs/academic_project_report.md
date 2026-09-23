@@ -555,7 +555,10 @@ IGNOU_project/
 ├── Docs/
 │   ├── academic_project_report.md   # IGNOU standard academic documentation
 │   ├── architecture_plan.md         # System architectural blueprint
+│   ├── file_descriptions.md         # Codebase file reference & quick lookup table
 │   ├── implementationplan.md        # Phased development milestone tracker
+│   ├── problemstatement.md          # Academic problem definition & motivation
+│   ├── project_files_description.md # Comprehensive codebase architecture & file manifest
 │   └── user_manual.md               # User & Operations Manual
 └── tests/                           # Pytest automated test suites (64 tests)
 ```
